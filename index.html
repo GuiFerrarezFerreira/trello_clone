@@ -4,127 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trello Clone</title>
-    <script type="text/javascript">
-// Add new card
-        function addCard(listId) {
-            const composer = document.querySelector(`#cardComposer-${listId}`);
-            const title = composer.value.trim();
-            const board = getCurrentBoard();
-            
-            if (title && board && userCanEdit(board.id, appData.currentUserId)) {
-                const list = board.lists.find(l => l.id === listId);
-                const newCard = {
-                    id: 'card-' + Date.now(),
-                    title: title,
-                    labels: [],
-                    members: [],
-                    tags: []
-                };
-                
-                list.cards.push(newCard);
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-        }
-
-        // Drag and drop functionality
-        let draggedCard = null;
-        let draggedCardData = null;
-        let sourceListId = null;
-
-        function handleDragStart(e) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) {
-                e.preventDefault();
-                return;
-            }
-            
-            draggedCard = e.target;
-            draggedCard.classList.add('dragging');
-            draggedCardData = {
-                id: draggedCard.dataset.cardId,
-                element: draggedCard
-            };
-            sourceListId = draggedCard.closest('.cards-container').dataset.listId;
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            
-            // Remove any drag-over classes
-            document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-        }
-
-        function handleDragOver(e) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            const container = e.currentTarget;
-            const afterElement = getDragAfterElement(container, e.clientY);
-            
-            // Visual feedback
-            document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-            
-            if (afterElement && afterElement !== draggedCard) {
-                afterElement.classList.add('drag-over');
-            }
-        }
-
-        function handleDrop(e) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            e.preventDefault();
-            
-            const targetListId = e.currentTarget.dataset.listId;
-            const targetContainer = e.currentTarget;
-            const afterElement = getDragAfterElement(targetContainer, e.clientY);
-            
-            // Update data model
-            moveCard(sourceListId, targetListId, draggedCardData.id, afterElement);
-            
-            // Re-render board
-            renderCurrentBoard();
-            renderBoardsList();
-        }        
-        // Create list HTML
-        function createListHTML(list) {
-            return `
-                <div class="list" data-list-id="${list.id}">
-                    <div class="list-header">
-                        <input type="text" class="list-title" value="${list.title}" onblur="updateListTitle('${list.id}', this.value)">
-                        <span class="list-menu" onclick="toggleListMenu('${list.id}')">⋯</span>
-                        <div class="list-menu-dropdown" id="listMenu-${list.id}">
-                            <div class="list-menu-item delete" onclick="confirmDeleteList('${list.id}')">
-                                Excluir lista
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cards-container" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" data-list-id="${list.id}">
-                        ${list.cards.map(card => createCardHTML(card)).join('')}
-                    </div>
-                    <div class="add-card" onclick="showAddCardForm('${list.id}')">
-                        <span>+ Adicionar um cartão</span>
-                    </div>
-                    <div class="add-card-form" id="addCardForm-${list.id}">
-                        <textarea class="card-composer" id="cardComposer-${list.id}" placeholder="Insira um título para este cartão..."></textarea>
-                        <div class="composer-controls">
-                            <button class="btn btn-primary" onclick="addCard('${list.id}')">Adicionar cartão</button>
-                            <button class="btn btn-cancel" onclick="hideAddCardForm('${list.id}')">✕</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        </script>
-    <style>            
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -136,6 +16,67 @@
             background: linear-gradient(135deg, #0079bf 0%, #026aa7 100%);
             min-height: 100vh;
             color: #172b4d;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0079bf 0%, #026aa7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .loading-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 40px;
+            color: #0079bf;
+            margin: 0 auto 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .navbar {
@@ -168,6 +109,12 @@
             background: rgba(255, 255, 255, 0.2);
             padding: 6px 12px;
             border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .current-user:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .user-avatar-small {
@@ -180,6 +127,21 @@
             font-size: 10px;
             font-weight: 600;
             color: white;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .navbar h1 {
@@ -659,6 +621,42 @@
             border: 1px solid #dfe1e6;
             border-radius: 3px;
             font-size: 14px;
+        }
+
+        .user-search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .user-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+        }
+
+        .user-search-results.active {
+            display: block;
+        }
+
+        .user-result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-result-item:hover {
+            background: #f4f5f7;
         }
 
         .no-access-message {
@@ -1473,9 +1471,41 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
+
+        /* Error state */
+        .error-message {
+            background: #ffeae8;
+            color: #c9372c;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-sidebar {
+                padding-top: 0;
+                border-top: 1px solid #e4e6ea;
+                margin-top: 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">T</div>
+            <h2>Carregando...</h2>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
     <nav class="navbar">
         <div class="navbar-left">
             <h1>
@@ -1489,9 +1519,10 @@
         </div>
         <div class="navbar-right">
             <div class="current-user">
-                <div class="user-avatar-small" style="background-color: #eb5a46">AS</div>
-                <span>Ana Silva</span>
+                <div class="user-avatar-small" id="userAvatar">AS</div>
+                <span id="userName">Ana Silva</span>
             </div>
+            <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
     </nav>
 
@@ -1602,218 +1633,137 @@
         </div>
     </div>
 
+    <script src="js/services/api.service.js"></script>
+    <script src="js/services/auth.guard.js"></script>
+    <script src="js/utils/notifications.js"></script>
     <script>
-        // Data structure to store all boards and app state
-        let appData = {
-            currentUserId: 'user-1', // Current logged user
+        // App state
+        let appState = {
+            currentUserId: null,
             currentBoardId: null,
+            currentBoard: null,
             boards: [],
-            users: [
-                { id: 'user-1', name: 'Ana Silva', initials: 'AS', color: '#eb5a46', email: 'ana@email.com' },
-                { id: 'user-2', name: 'Bruno Costa', initials: 'BC', color: '#f2d600', email: 'bruno@email.com' },
-                { id: 'user-3', name: 'Carlos Lima', initials: 'CL', color: '#61bd4f', email: 'carlos@email.com' },
-                { id: 'user-4', name: 'Diana Santos', initials: 'DS', color: '#0079bf', email: 'diana@email.com' },
-                { id: 'user-5', name: 'Eduardo Reis', initials: 'ER', color: '#c377e0', email: 'eduardo@email.com' }
-            ]
+            users: [],
+            draggedCard: null,
+            sourceListId: null
         };
 
-        // Get current user
-        function getCurrentUser() {
-            return appData.users.find(u => u.id === appData.currentUserId);
-        }
-
-        // Get user role in board
-        function getUserRole(boardId, userId) {
-            const board = appData.boards.find(b => b.id === boardId);
-            if (!board) return null;
-            
-            const member = board.members.find(m => m.userId === userId);
-            return member ? member.role : null;
-        }
-
-        // Check if user has access to board
-        function userHasAccess(boardId, userId) {
-            return getUserRole(boardId, userId) !== null;
-        }
-
-        // Check if user can edit board (admin or editor)
-        function userCanEdit(boardId, userId) {
-            const role = getUserRole(boardId, userId);
-            return role === 'admin' || role === 'editor';
-        }
-
-        // Check if user is admin of board
-        function userIsAdmin(boardId, userId) {
-            return getUserRole(boardId, userId) === 'admin';
-        }
-
-        // Get accessible boards for current user
-        function getAccessibleBoards() {
-            return appData.boards.filter(board => 
-                userHasAccess(board.id, appData.currentUserId)
-            );
-        }
-
-        // Initialize app with sample data
-        function initializeApp() {
-            // Create default boards
-            appData.boards = [
-                {
-                    id: 'board-1',
-                    title: 'Projeto Web App',
-                    color: '#0079bf',
-                    members: [
-                        { userId: 'user-1', role: 'admin' },
-                        { userId: 'user-2', role: 'editor' },
-                        { userId: 'user-3', role: 'reader' }
-                    ],
-                    lists: [
-                        {
-                            id: 'list-1',
-                            title: 'A Fazer',
-                            cards: [
-                                { 
-                                    id: 'card-1', 
-                                    title: 'Revisar proposta do projeto', 
-                                    labels: ['blue', 'green'],
-                                    members: ['user-1', 'user-3'],
-                                    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-                                    tags: ['urgente', 'revisão']
-                                },
-                                { 
-                                    id: 'card-2', 
-                                    title: 'Criar mockups da interface', 
-                                    labels: ['purple'],
-                                    members: ['user-2'],
-                                    tags: ['design', 'UI/UX']
-                                }
-                            ]
-                        },
-                        {
-                            id: 'list-2',
-                            title: 'Em Progresso',
-                            cards: [
-                                { 
-                                    id: 'card-3', 
-                                    title: 'Desenvolver página inicial', 
-                                    labels: ['yellow'],
-                                    members: ['user-4', 'user-5'],
-                                    dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                                    tags: ['frontend', 'desenvolvimento']
-                                }
-                            ]
-                        },
-                        {
-                            id: 'list-3',
-                            title: 'Concluído',
-                            cards: [
-                                { 
-                                    id: 'card-5', 
-                                    title: 'Definir arquitetura do sistema', 
-                                    labels: ['green'],
-                                    members: ['user-1', 'user-4'],
-                                    dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                                    tags: ['arquitetura', 'documentação']
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: 'board-2',
-                    title: 'Marketing Digital',
-                    color: '#d29034',
-                    members: [
-                        { userId: 'user-2', role: 'admin' },
-                        { userId: 'user-1', role: 'editor' }
-                    ],
-                    lists: [
-                        {
-                            id: 'list-4',
-                            title: 'Ideias',
-                            cards: [
-                                { 
-                                    id: 'card-6', 
-                                    title: 'Campanha de mídia social', 
-                                    labels: ['yellow'],
-                                    members: ['user-2'],
-                                    tags: ['social-media', 'campanha']
-                                }
-                            ]
-                        },
-                        {
-                            id: 'list-5',
-                            title: 'Planejamento',
-                            cards: []
-                        }
-                    ]
-                },
-                {
-                    id: 'board-3',
-                    title: 'Recursos Humanos',
-                    color: '#519839',
-                    members: [
-                        { userId: 'user-3', role: 'admin' },
-                        { userId: 'user-4', role: 'editor' },
-                        { userId: 'user-1', role: 'reader' }
-                    ],
-                    lists: [
-                        {
-                            id: 'list-6',
-                            title: 'Contratações',
-                            cards: [
-                                { 
-                                    id: 'card-7', 
-                                    title: 'Entrevistar candidatos', 
-                                    labels: ['red'],
-                                    members: ['user-3', 'user-4'],
-                                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                                    tags: ['RH', 'entrevistas']
-                                }
-                            ]
-                        }
-                    ]
+        // Initialize app
+        async function initializeApp() {
+            try {
+                // Check authentication first
+                const user = await apiService.validateToken();
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
                 }
-            ];
 
-            // Set first accessible board as current
-            const accessibleBoards = getAccessibleBoards();
-            appData.currentBoardId = accessibleBoards[0]?.id || null;
+                // Set current user
+                appState.currentUserId = user.id;
+                updateUserDisplay(user);
+
+                // Load boards
+                await loadBoards();
+
+                // Hide loading screen
+                hideLoadingScreen();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                notify.error('Erro ao inicializar aplicação');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Update user display
+        function updateUserDisplay(user) {
+            document.getElementById('userAvatar').textContent = user.initials;
+            document.getElementById('userAvatar').style.backgroundColor = user.color;
+            document.getElementById('userName').textContent = `${user.firstName} ${user.lastName}`;
+        }
+
+        // Load boards
+        async function loadBoards() {
+            try {
+                const response = await apiService.getBoards();
+                if (response.success) {
+                    appState.boards = response.boards;
+                    renderBoardsList();
+                    
+                    // Select first board if exists
+                    if (appState.boards.length > 0 && !appState.currentBoardId) {
+                        await switchBoard(appState.boards[0].id);
+                    } else if (appState.currentBoardId) {
+                        await loadCurrentBoard();
+                    } else {
+                        renderEmptyState();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading boards:', error);
+                notify.error('Erro ao carregar quadros');
+            }
+        }
+
+        // Load current board
+        async function loadCurrentBoard() {
+            if (!appState.currentBoardId) {
+                renderEmptyState();
+                return;
+            }
+
+            showLoadingScreen();
             
-            // Update current user display
-            const currentUser = getCurrentUser();
-            document.querySelector('.user-avatar-small').style.backgroundColor = currentUser.color;
-            document.querySelector('.user-avatar-small').textContent = currentUser.initials;
-            document.querySelector('.current-user span').textContent = currentUser.name;
-            
-            // Render the app
+            try {
+                const response = await apiService.getBoard(appState.currentBoardId);
+                if (response.success) {
+                    appState.currentBoard = response.board;
+                    renderCurrentBoard();
+                }
+            } catch (error) {
+                console.error('Error loading board:', error);
+                notify.error('Erro ao carregar quadro');
+                renderEmptyState();
+            } finally {
+                hideLoadingScreen();
+            }
+        }
+
+        // Switch board
+        async function switchBoard(boardId) {
+            appState.currentBoardId = boardId;
             renderBoardsList();
-            renderCurrentBoard();
+            await loadCurrentBoard();
+            toggleBoardsMenu();
         }
 
-        // Get current board
-        function getCurrentBoard() {
-            return appData.boards.find(b => b.id === appData.currentBoardId);
+        // Toggle boards menu
+        function toggleBoardsMenu() {
+            document.getElementById('boardsMenu').classList.toggle('active');
         }
 
-        // Render boards list in dropdown
+        // Show/hide loading screen
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').classList.remove('hide');
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').classList.add('hide');
+        }
+
+        // Render boards list
         function renderBoardsList() {
             const boardsList = document.getElementById('boardsList');
-            const accessibleBoards = getAccessibleBoards();
             
-            boardsList.innerHTML = accessibleBoards.map(board => {
-                const listsCount = board.lists.length;
-                const cardsCount = board.lists.reduce((sum, list) => sum + list.cards.length, 0);
-                const isActive = board.id === appData.currentBoardId;
-                const userRole = getUserRole(board.id, appData.currentUserId);
-                const canDelete = userIsAdmin(board.id, appData.currentUserId);
+            boardsList.innerHTML = appState.boards.map(board => {
+                const isActive = board.id === appState.currentBoardId;
+                const canDelete = board.role === 'admin';
                 
                 return `
                     <div class="board-item ${isActive ? 'active' : ''}" onclick="switchBoard('${board.id}')">
                         <div class="board-item-color" style="background: ${board.color}"></div>
                         <div class="board-item-info">
                             <div class="board-item-title">${board.title}</div>
-                            <div class="board-item-lists">${listsCount} listas · ${cardsCount} cartões · ${userRole}</div>
+                            <div class="board-item-lists">${board.listCount || 0} listas · ${board.cardCount || 0} cartões · ${board.role}</div>
                         </div>
                         ${canDelete ? `
                             <div class="board-delete" onclick="confirmDeleteBoard(event, '${board.id}')" title="Excluir quadro">
@@ -1825,122 +1775,48 @@
             }).join('');
         }
 
-        // Switch to a different board
-        function switchBoard(boardId) {
-            appData.currentBoardId = boardId;
-            renderBoardsList();
-            renderCurrentBoard();
-            toggleBoardsMenu();
+        // Render empty state
+        function renderEmptyState() {
+            const boardContent = document.getElementById('boardContent');
+            boardContent.innerHTML = `
+                <div class="empty-state">
+                    <h2>Nenhum quadro selecionado</h2>
+                    <p>Crie um novo quadro para começar</p>
+                    <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
+                </div>
+            `;
         }
 
-        // Toggle boards menu
-        function toggleBoardsMenu() {
-            document.getElementById('boardsMenu').classList.toggle('active');
-        }
-
-        // Show create board modal
-        function showCreateBoardModal() {
-            document.getElementById('createBoardModal').classList.add('active');
-            document.getElementById('newBoardTitle').focus();
-            toggleBoardsMenu();
-        }
-
-        // Hide create board modal
-        function hideCreateBoardModal() {
-            document.getElementById('createBoardModal').classList.remove('active');
-            document.getElementById('newBoardTitle').value = '';
-            
-            // Reset color selection
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.querySelector('.color-option[data-color="#0079bf"]').classList.add('selected');
-        }
-
-        // Handle color selection
-        document.querySelectorAll('.color-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-
-        // Create new board
-        function createBoard() {
-            const title = document.getElementById('newBoardTitle').value.trim();
-            const selectedColor = document.querySelector('.color-option.selected').dataset.color;
-            
-            if (title) {
-                const newBoard = {
-                    id: 'board-' + Date.now(),
-                    title: title,
-                    color: selectedColor,
-                    members: [
-                        { userId: appData.currentUserId, role: 'admin' }
-                    ],
-                    lists: []
-                };
-                
-                appData.boards.push(newBoard);
-                appData.currentBoardId = newBoard.id;
-                
-                renderBoardsList();
-                renderCurrentBoard();
-                hideCreateBoardModal();
-            }
-        }
-
-        // Render the current board
+        // Render current board
         function renderCurrentBoard() {
-            const board = getCurrentBoard();
+            const board = appState.currentBoard;
             const boardContent = document.getElementById('boardContent');
             
             if (!board) {
-                boardContent.innerHTML = `
-                    <div class="empty-state">
-                        <h2>Nenhum quadro selecionado</h2>
-                        <p>Crie um novo quadro para começar</p>
-                        <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
-                    </div>
-                `;
+                renderEmptyState();
                 return;
             }
 
-            // Check if user has access
-            if (!userHasAccess(board.id, appData.currentUserId)) {
-                boardContent.innerHTML = `
-                    <div class="no-access-message">
-                        <h2>Sem acesso a este quadro</h2>
-                        <p>Você não tem permissão para visualizar este quadro.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const userRole = getUserRole(board.id, appData.currentUserId);
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            const isAdmin = userIsAdmin(board.id, appData.currentUserId);
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            const isAdmin = board.role === 'admin';
 
             // Update background color
             document.body.style.background = `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`;
             
             // Render board members
-            const membersHTML = board.members.map(member => {
-                const user = appData.users.find(u => u.id === member.userId);
-                return `
-                    <div class="board-member-avatar" 
-                         style="background-color: ${user.color}" 
-                         title="${user.name} (${member.role})">
-                        ${user.initials}
-                    </div>
-                `;
-            }).join('');
+            const membersHTML = board.members.map(member => `
+                <div class="board-member-avatar" 
+                     style="background-color: ${member.color}" 
+                     title="${member.name} (${member.role})">
+                    ${member.initials}
+                </div>
+            `).join('');
             
             boardContent.innerHTML = `
                 <div class="board-header">
                     <div class="board-header-left">
                         <div class="board-title" ${canEdit ? 'onclick="editBoardTitle()"' : ''}>${board.title}</div>
-                        <span class="member-role role-${userRole}">${userRole}</span>
+                        <span class="member-role role-${board.role}">${board.role}</span>
                     </div>
                     <div class="board-members">
                         <div class="board-members-list">
@@ -1968,117 +1844,7 @@
         }
 
         // Create list HTML
-        function createListHTML(list) {
-            return `
-                <div class="list" data-list-id="${list.id}">
-                    <div class="list-header">
-                        <input type="text" class="list-title" value="${list.title}" onblur="updateListTitle('${list.id}', this.value)">
-                        <span class="list-menu" onclick="toggleListMenu('${list.id}')">⋯</span>
-                        <div class="list-menu-dropdown" id="listMenu-${list.id}">
-                            <div class="list-menu-item delete" onclick="confirmDeleteList('${list.id}')">
-                                Excluir lista
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cards-container" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" data-list-id="${list.id}">
-                        ${list.cards.map(card => createCardHTML(card)).join('')}
-                    </div>
-                    <div class="add-card" onclick="showAddCardForm('${list.id}')">
-                        <span>+ Adicionar um cartão</span>
-                    </div>
-                    <div class="add-card-form" id="addCardForm-${list.id}">
-                        <textarea class="card-composer" id="cardComposer-${list.id}" placeholder="Insira um título para este cartão..."></textarea>
-                        <div class="composer-controls">
-                            <button class="btn btn-primary" onclick="addCard('${list.id}')">Adicionar cartão</button>
-                            <button class="btn btn-cancel" onclick="hideAddCardForm('${list.id}')">✕</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Render the current board
-        function renderCurrentBoard() {
-            const board = getCurrentBoard();
-            const boardContent = document.getElementById('boardContent');
-            
-            if (!board) {
-                boardContent.innerHTML = `
-                    <div class="empty-state">
-                        <h2>Nenhum quadro selecionado</h2>
-                        <p>Crie um novo quadro para começar</p>
-                        <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
-                    </div>
-                `;
-                return;
-            }
-
-            // Check if user has access
-            if (!userHasAccess(board.id, appData.currentUserId)) {
-                boardContent.innerHTML = `
-                    <div class="no-access-message">
-                        <h2>Sem acesso a este quadro</h2>
-                        <p>Você não tem permissão para visualizar este quadro.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const userRole = getUserRole(board.id, appData.currentUserId);
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            const isAdmin = userIsAdmin(board.id, appData.currentUserId);
-
-            // Update background color
-            document.body.style.background = `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`;
-            
-            // Render board members
-            const membersHTML = board.members.map(member => {
-                const user = appData.users.find(u => u.id === member.userId);
-                return `
-                    <div class="board-member-avatar" 
-                         style="background-color: ${user.color}" 
-                         title="${user.name} (${member.role})">
-                        ${user.initials}
-                    </div>
-                `;
-            }).join('');
-            
-            boardContent.innerHTML = `
-                <div class="board-header">
-                    <div class="board-header-left">
-                        <div class="board-title" ${canEdit ? 'onclick="editBoardTitle()"' : ''}>${board.title}</div>
-                        <span class="member-role role-${userRole}">${userRole}</span>
-                    </div>
-                    <div class="board-members">
-                        <div class="board-members-list">
-                            ${membersHTML}
-                        </div>
-                        ${isAdmin ? '<div class="add-member-btn" onclick="openMembersModal()" title="Gerenciar membros">+</div>' : ''}
-                    </div>
-                </div>
-                <div class="board-container" id="board">
-                    ${board.lists.map(list => createListHTML(list)).join('')}
-                    ${canEdit ? `
-                        <div class="add-list" onclick="showAddListForm()">
-                            <span>+ Adicionar uma lista</span>
-                        </div>
-                        <div class="add-list-form" id="addListForm">
-                            <input type="text" class="list-name-input" id="listNameInput" placeholder="Insira o título da lista..." autofocus>
-                            <div class="composer-controls">
-                                <button class="btn btn-primary" onclick="addList()">Adicionar lista</button>
-                                <button class="btn btn-cancel" onclick="hideAddListForm()">✕</button>
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // Create list HTML
-        function createListHTML(list) {
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
+        function createListHTML(list, canEdit) {
             return `
                 <div class="list" data-list-id="${list.id}">
                     <div class="list-header">
@@ -2094,7 +1860,7 @@
                         ` : ''}
                     </div>
                     <div class="cards-container" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" data-list-id="${list.id}">
-                        ${list.cards.map(card => createCardHTML(card)).join('')}
+                        ${list.cards.map(card => createCardHTML(card, canEdit)).join('')}
                     </div>
                     ${canEdit ? `
                         <div class="add-card" onclick="showAddCardForm('${list.id}')">
@@ -2113,10 +1879,7 @@
         }
 
         // Create card HTML
-        function createCardHTML(card) {
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
+        function createCardHTML(card, canEdit) {
             const labelsHTML = card.labels ? card.labels.map(label => 
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
@@ -2144,11 +1907,8 @@
                 // Members avatars
                 if (card.members && card.members.length > 0) {
                     badgesHTML += '<div class="card-members">';
-                    card.members.forEach(memberId => {
-                        const member = appData.users.find(u => u.id === memberId);
-                        if (member) {
-                            badgesHTML += `<div class="member-avatar" style="background-color: ${member.color}" title="${member.name}">${member.initials}</div>`;
-                        }
+                    card.members.forEach(member => {
+                        badgesHTML += `<div class="member-avatar" style="background-color: ${member.color}" title="${member.name}">${member.initials}</div>`;
                     });
                     badgesHTML += '</div>';
                 }
@@ -2183,30 +1943,159 @@
             `;
         }
 
-        // Delete card
-        function deleteCard(event, cardId) {
-            event.stopPropagation();
+        // Board operations
+        function showCreateBoardModal() {
+            document.getElementById('createBoardModal').classList.add('active');
+            document.getElementById('newBoardTitle').focus();
+            toggleBoardsMenu();
+        }
+
+        function hideCreateBoardModal() {
+            document.getElementById('createBoardModal').classList.remove('active');
+            document.getElementById('newBoardTitle').value = '';
             
-            const board = getCurrentBoard();
-            if (!board || !userCanEdit(board.id, appData.currentUserId)) return;
+            // Reset color selection
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector('.color-option[data-color="#0079bf"]').classList.add('selected');
+        }
+
+        async function createBoard() {
+            const title = document.getElementById('newBoardTitle').value.trim();
+            const selectedColor = document.querySelector('.color-option.selected').dataset.color;
             
-            // Find and remove card
-            for (const list of board.lists) {
-                const cardIndex = list.cards.findIndex(c => c.id === cardId);
-                if (cardIndex > -1) {
-                    list.cards.splice(cardIndex, 1);
-                    renderCurrentBoard();
-                    renderBoardsList();
-                    break;
+            if (!title) {
+                notify.error('Por favor, insira um título para o quadro');
+                return;
+            }
+
+            try {
+                const response = await apiService.createBoard(title, selectedColor);
+                if (response.success) {
+                    notify.success('Quadro criado com sucesso!');
+                    hideCreateBoardModal();
+                    await loadBoards();
+                    await switchBoard(response.boardId);
+                }
+            } catch (error) {
+                console.error('Error creating board:', error);
+                notify.error('Erro ao criar quadro');
+            }
+        }
+
+        async function editBoardTitle() {
+            const board = appState.currentBoard;
+            if (!board || (board.role !== 'admin' && board.role !== 'editor')) return;
+            
+            const newTitle = prompt('Novo título do quadro:', board.title);
+            
+            if (newTitle && newTitle.trim() && newTitle !== board.title) {
+                try {
+                    const response = await apiService.updateBoard(board.id, { 
+                        title: newTitle.trim(),
+                        color: board.color 
+                    });
+                    
+                    if (response.success) {
+                        notify.success('Título atualizado!');
+                        await loadBoards();
+                        await loadCurrentBoard();
+                    }
+                } catch (error) {
+                    console.error('Error updating board:', error);
+                    notify.error('Erro ao atualizar título');
                 }
             }
         }
 
-        // Toggle list menu
-        function toggleListMenu(listId) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
+        function confirmDeleteBoard(event, boardId) {
+            event.stopPropagation();
             
+            const board = appState.boards.find(b => b.id === boardId);
+            if (!board || board.role !== 'admin') {
+                notify.error('Apenas administradores podem excluir quadros');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Excluir quadro',
+                `Tem certeza que deseja excluir o quadro "${board.title}" e todo o seu conteúdo?`,
+                () => deleteBoard(boardId)
+            );
+        }
+
+        async function deleteBoard(boardId) {
+            try {
+                const response = await apiService.deleteBoard(boardId);
+                if (response.success) {
+                    notify.success('Quadro excluído com sucesso!');
+                    hideConfirmDialog();
+                    
+                    // If deleting current board, clear selection
+                    if (appState.currentBoardId === boardId) {
+                        appState.currentBoardId = null;
+                        appState.currentBoard = null;
+                    }
+                    
+                    await loadBoards();
+                }
+            } catch (error) {
+                console.error('Error deleting board:', error);
+                notify.error('Erro ao excluir quadro');
+            }
+        }
+
+        // List operations
+        function showAddListForm() {
+            document.querySelector('.add-list').style.display = 'none';
+            const form = document.getElementById('addListForm');
+            form.classList.add('active');
+            document.getElementById('listNameInput').focus();
+        }
+
+        function hideAddListForm() {
+            document.querySelector('.add-list').style.display = 'flex';
+            document.getElementById('addListForm').classList.remove('active');
+            document.getElementById('listNameInput').value = '';
+        }
+
+        async function addList() {
+            const title = document.getElementById('listNameInput').value.trim();
+            
+            if (!title) {
+                notify.error('Por favor, insira um título para a lista');
+                return;
+            }
+
+            try {
+                const response = await apiService.createList(appState.currentBoardId, title);
+                if (response.success) {
+                    notify.success('Lista criada com sucesso!');
+                    hideAddListForm();
+                    await loadCurrentBoard();
+                }
+            } catch (error) {
+                console.error('Error creating list:', error);
+                notify.error('Erro ao criar lista');
+            }
+        }
+
+        async function updateListTitle(listId, newTitle) {
+            if (!newTitle.trim()) return;
+            
+            try {
+                const response = await apiService.updateList(listId, { title: newTitle });
+                if (response.success) {
+                    await loadBoards(); // Update counts
+                }
+            } catch (error) {
+                console.error('Error updating list:', error);
+                notify.error('Erro ao atualizar título da lista');
+            }
+        }
+
+        function toggleListMenu(listId) {
             const menu = document.getElementById(`listMenu-${listId}`);
             const allMenus = document.querySelectorAll('.list-menu-dropdown');
             
@@ -2220,12 +2109,8 @@
             menu.classList.toggle('active');
         }
 
-        // Confirm delete list
         function confirmDeleteList(listId) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const list = board.lists.find(l => l.id === listId);
+            const list = appState.currentBoard.lists.find(l => l.id === listId);
             
             showConfirmDialog(
                 'Excluir lista',
@@ -2234,103 +2119,147 @@
             );
         }
 
-        // Delete list
-        function deleteList(listId) {
-            const board = getCurrentBoard();
-            if (!board || !userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const listIndex = board.lists.findIndex(l => l.id === listId);
-            if (listIndex > -1) {
-                board.lists.splice(listIndex, 1);
-                renderCurrentBoard();
-                renderBoardsList();
+        async function deleteList(listId) {
+            try {
+                const response = await apiService.deleteList(listId);
+                if (response.success) {
+                    notify.success('Lista excluída com sucesso!');
+                    hideConfirmDialog();
+                    await loadCurrentBoard();
+                    await loadBoards(); // Update counts
+                }
+            } catch (error) {
+                console.error('Error deleting list:', error);
+                notify.error('Erro ao excluir lista');
             }
-            
-            hideConfirmDialog();
         }
 
-        // Confirm delete board
-        function confirmDeleteBoard(event, boardId) {
+        // Card operations
+        function showAddCardForm(listId) {
+            document.querySelector(`#addCardForm-${listId}`).classList.add('active');
+            document.querySelector(`#cardComposer-${listId}`).focus();
+        }
+
+        function hideAddCardForm(listId) {
+            document.querySelector(`#addCardForm-${listId}`).classList.remove('active');
+            document.querySelector(`#cardComposer-${listId}`).value = '';
+        }
+
+        async function addCard(listId) {
+            const composer = document.querySelector(`#cardComposer-${listId}`);
+            const title = composer.value.trim();
+            
+            if (!title) {
+                notify.error('Por favor, insira um título para o cartão');
+                return;
+            }
+
+            try {
+                const response = await apiService.createCard(listId, title);
+                if (response.success) {
+                    notify.success('Cartão criado com sucesso!');
+                    hideAddCardForm(listId);
+                    await loadCurrentBoard();
+                    await loadBoards(); // Update counts
+                }
+            } catch (error) {
+                console.error('Error creating card:', error);
+                notify.error('Erro ao criar cartão');
+            }
+        }
+
+        async function deleteCard(event, cardId) {
             event.stopPropagation();
             
-            if (!userIsAdmin(boardId, appData.currentUserId)) {
-                alert('Apenas administradores podem excluir quadros!');
-                return;
-            }
-            
-            const board = appData.boards.find(b => b.id === boardId);
-            
-            // Don't allow deleting the last board
-            const accessibleBoards = getAccessibleBoards();
-            if (accessibleBoards.length === 1) {
-                alert('Você precisa ter pelo menos um quadro!');
-                return;
-            }
-            
-            showConfirmDialog(
-                'Excluir quadro',
-                `Tem certeza que deseja excluir o quadro "${board.title}" e todo o seu conteúdo?`,
-                () => deleteBoard(boardId)
-            );
-        }
-
-        // Delete board
-        function deleteBoard(boardId) {
-            if (!userIsAdmin(boardId, appData.currentUserId)) return;
-            
-            const boardIndex = appData.boards.findIndex(b => b.id === boardId);
-            if (boardIndex > -1) {
-                appData.boards.splice(boardIndex, 1);
-                
-                // If deleting current board, switch to first available
-                if (appData.currentBoardId === boardId) {
-                    const accessibleBoards = getAccessibleBoards();
-                    appData.currentBoardId = accessibleBoards[0]?.id || null;
+            try {
+                const response = await apiService.deleteCard(cardId);
+                if (response.success) {
+                    await loadCurrentBoard();
+                    await loadBoards(); // Update counts
                 }
+            } catch (error) {
+                console.error('Error deleting card:', error);
+                notify.error('Erro ao excluir cartão');
+            }
+        }
+
+        // Card modal
+        let currentCardId = null;
+
+        async function openCardModal(cardId) {
+            currentCardId = cardId;
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            try {
+                const response = await apiService.getCard(cardId);
+                if (response.success) {
+                    const card = response.card;
+                    
+                    // Set card details
+                    document.getElementById('modalCardTitle').textContent = card.title;
+                    document.getElementById('modalCardTitle').contentEditable = canEdit;
+                    document.getElementById('cardDescription').value = card.description || '';
+                    document.getElementById('cardDescription').readOnly = !canEdit;
+                    
+                    // Set due date
+                    if (card.dueDate) {
+                        const date = new Date(card.dueDate);
+                        const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 16);
+                        document.getElementById('dueDateInput').value = localDateTime;
+                    } else {
+                        document.getElementById('dueDateInput').value = '';
+                    }
+                    document.getElementById('dueDateInput').disabled = !canEdit;
+                    
+                    // Show/hide edit controls based on permissions
+                    document.querySelectorAll('.sidebar-button').forEach(btn => {
+                        btn.style.display = canEdit ? 'flex' : 'none';
+                    });
+                    
+                    document.getElementById('tagInput').style.display = canEdit ? 'block' : 'none';
+                    
+                    // Render members selector
+                    renderMembersSelector(card);
+                    
+                    // Render tags
+                    renderTags(card);
+                    
+                    // Show modal
+                    document.getElementById('cardModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error loading card:', error);
+                notify.error('Erro ao carregar cartão');
+            }
+        }
+
+        async function closeModal() {
+            // Save changes before closing
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (currentCardId && canEdit) {
+                const title = document.getElementById('modalCardTitle').textContent;
+                const description = document.getElementById('cardDescription').value;
                 
-                renderBoardsList();
-                renderCurrentBoard();
+                try {
+                    await apiService.updateCard(currentCardId, { title, description });
+                    await loadCurrentBoard();
+                } catch (error) {
+                    console.error('Error updating card:', error);
+                }
             }
             
-            hideConfirmDialog();
+            document.getElementById('cardModal').classList.remove('active');
+            document.getElementById('membersSelector').classList.remove('active');
+            currentCardId = null;
         }
 
-        // Show confirm dialog
-        function showConfirmDialog(title, message, onConfirm) {
-            const dialog = document.getElementById('confirmDialog');
-            document.getElementById('confirmTitle').textContent = title;
-            document.getElementById('confirmMessage').textContent = message;
-            
-            const confirmButton = document.getElementById('confirmButton');
-            confirmButton.onclick = onConfirm;
-            
-            dialog.classList.add('active');
-        }
-
-        // Hide confirm dialog
-        function hideConfirmDialog() {
-            document.getElementById('confirmDialog').classList.remove('active');
-        }
-
-        // Edit board title
-        function editBoardTitle() {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const newTitle = prompt('Novo título do quadro:', board.title);
-            
-            if (newTitle && newTitle.trim()) {
-                board.title = newTitle.trim();
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-        }
-
-        // Members Management
+        // Members management
         function openMembersModal() {
-            const board = getCurrentBoard();
-            if (!userIsAdmin(board.id, appData.currentUserId)) return;
-            
             renderMembersModal();
             document.getElementById('membersModal').classList.add('active');
         }
@@ -2340,23 +2269,22 @@
         }
 
         function renderMembersModal() {
-            const board = getCurrentBoard();
+            const board = appState.currentBoard;
             const modalBody = document.getElementById('membersModalBody');
             
             // Current members
             const membersHTML = board.members.map(member => {
-                const user = appData.users.find(u => u.id === member.userId);
-                const isCurrentUser = member.userId === appData.currentUserId;
+                const isCurrentUser = member.userId === appState.currentUserId;
                 
                 return `
                     <div class="member-row">
                         <div class="member-info">
-                            <div class="avatar" style="background-color: ${user.color}">
-                                ${user.initials}
+                            <div class="avatar" style="background-color: ${member.color}">
+                                ${member.initials}
                             </div>
                             <div class="member-details">
-                                <div class="member-name">${user.name}</div>
-                                <div class="member-email">${user.email}</div>
+                                <div class="member-name">${member.name}</div>
+                                <div class="member-email">${member.email}</div>
                             </div>
                         </div>
                         <div>
@@ -2376,180 +2304,283 @@
                 `;
             }).join('');
             
-            // Available users to add
-            const availableUsers = appData.users.filter(user => 
-                !board.members.find(m => m.userId === user.id)
-            );
-            
-            const addUserOptions = availableUsers.map(user => 
-                `<option value="${user.id}">${user.name} (${user.email})</option>`
-            ).join('');
-            
             modalBody.innerHTML = `
                 <div>
                     <h3>Membros do Quadro</h3>
                     ${membersHTML}
                 </div>
-                ${availableUsers.length > 0 ? `
-                    <div class="add-member-section">
-                        <h3>Adicionar Membro</h3>
-                        <div class="add-member-form">
-                            <select class="member-select" id="newMemberSelect">
-                                <option value="">Selecione um usuário...</option>
-                                ${addUserOptions}
-                            </select>
-                            <select class="role-selector" id="newMemberRole">
-                                <option value="reader">Leitor</option>
-                                <option value="editor">Editor</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="addBoardMember()">Adicionar</button>
-                        </div>
+                <div class="add-member-section">
+                    <h3>Adicionar Membro</h3>
+                    <div class="add-member-form" style="position: relative;">
+                        <input type="text" class="user-search-input" 
+                               id="userSearchInput" 
+                               placeholder="Buscar usuário por nome ou email..."
+                               onkeyup="searchUsers(this.value)">
+                        <div class="user-search-results" id="userSearchResults"></div>
+                        <select class="role-selector" id="newMemberRole">
+                            <option value="reader">Leitor</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Admin</option>
+                        </select>
                     </div>
-                ` : ''}
+                </div>
             `;
         }
 
-        function updateMemberRole(userId, newRole) {
-            const board = getCurrentBoard();
-            const member = board.members.find(m => m.userId === userId);
-            if (member) {
-                member.role = newRole;
-                renderMembersModal();
-                renderCurrentBoard();
-                renderBoardsList();
+        let searchTimeout;
+        async function searchUsers(query) {
+            clearTimeout(searchTimeout);
+            const resultsDiv = document.getElementById('userSearchResults');
+            
+            if (query.length < 2) {
+                resultsDiv.classList.remove('active');
+                return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await apiService.searchUsers(query);
+                    if (response.success) {
+                        const board = appState.currentBoard;
+                        const memberIds = board.members.map(m => m.userId);
+                        const availableUsers = response.users.filter(u => !memberIds.includes(u.id));
+                        
+                        if (availableUsers.length > 0) {
+                            resultsDiv.innerHTML = availableUsers.map(user => `
+                                <div class="user-result-item" onclick="selectUserToAdd('${user.id}', '${user.name}')">
+                                    <strong>${user.name}</strong> - ${user.email}
+                                </div>
+                            `).join('');
+                            resultsDiv.classList.add('active');
+                        } else {
+                            resultsDiv.innerHTML = '<div class="user-result-item">Nenhum usuário encontrado</div>';
+                            resultsDiv.classList.add('active');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error searching users:', error);
+                }
+            }, 300);
+        }
+
+        let selectedUserId = null;
+        function selectUserToAdd(userId, userName) {
+            selectedUserId = userId;
+            document.getElementById('userSearchInput').value = userName;
+            document.getElementById('userSearchResults').classList.remove('active');
+            addBoardMember();
+        }
+
+        async function addBoardMember() {
+            if (!selectedUserId) {
+                notify.error('Por favor, selecione um usuário');
+                return;
+            }
+            
+            const role = document.getElementById('newMemberRole').value;
+            
+            try {
+                const response = await apiService.addBoardMember(appState.currentBoardId, selectedUserId, role);
+                if (response.success) {
+                    notify.success('Membro adicionado com sucesso!');
+                    selectedUserId = null;
+                    await loadCurrentBoard();
+                    renderMembersModal();
+                }
+            } catch (error) {
+                console.error('Error adding member:', error);
+                notify.error('Erro ao adicionar membro');
             }
         }
 
-        function removeBoardMember(userId) {
-            const board = getCurrentBoard();
-            const memberIndex = board.members.findIndex(m => m.userId === userId);
-            
-            if (memberIndex > -1) {
-                board.members.splice(memberIndex, 1);
-                renderMembersModal();
-                renderCurrentBoard();
-                renderBoardsList();
+        async function updateMemberRole(userId, newRole) {
+            try {
+                const response = await apiService.updateBoardMember(appState.currentBoardId, userId, newRole);
+                if (response.success) {
+                    notify.success('Permissão atualizada!');
+                    await loadCurrentBoard();
+                    renderMembersModal();
+                }
+            } catch (error) {
+                console.error('Error updating member role:', error);
+                notify.error('Erro ao atualizar permissão');
             }
         }
 
-        function addBoardMember() {
-            const board = getCurrentBoard();
-            const userSelect = document.getElementById('newMemberSelect');
-            const roleSelect = document.getElementById('newMemberRole');
+        async function removeBoardMember(userId) {
+            try {
+                const response = await apiService.removeBoardMember(appState.currentBoardId, userId);
+                if (response.success) {
+                    notify.success('Membro removido!');
+                    await loadCurrentBoard();
+                    renderMembersModal();
+                }
+            } catch (error) {
+                console.error('Error removing member:', error);
+                notify.error('Erro ao remover membro');
+            }
+        }
+
+        // Card members
+        function toggleMembersSelector() {
+            const selector = document.getElementById('membersSelector');
+            selector.classList.toggle('active');
+        }
+
+        function renderMembersSelector(card) {
+            const selector = document.getElementById('membersSelector');
+            const assignedMembers = document.getElementById('assignedMembers');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
             
-            if (userSelect.value) {
-                board.members.push({
-                    userId: userSelect.value,
-                    role: roleSelect.value
-                });
+            if (!canEdit) {
+                selector.innerHTML = '';
+                renderAssignedMembers(card);
+                return;
+            }
+            
+            // Render member options (board members only)
+            selector.innerHTML = board.members.map(member => {
+                const isSelected = card.members && card.members.find(m => m.id === member.userId);
+                return `
+                    <div class="member-option ${isSelected ? 'selected' : ''}" 
+                         onclick="toggleMember('${member.userId}')">
+                        <div class="avatar" style="background-color: ${member.color}">${member.initials}</div>
+                        <div>${member.name}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            renderAssignedMembers(card);
+        }
+
+        function renderAssignedMembers(card) {
+            const assignedMembers = document.getElementById('assignedMembers');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (card.members && card.members.length > 0) {
+                assignedMembers.innerHTML = card.members.map(member => `
+                    <div class="assigned-member" style="background-color: ${member.color}" title="${member.name}">
+                        ${member.initials}
+                        ${canEdit ? `<div class="remove-member" onclick="removeMember('${member.id}')">×</div>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                assignedMembers.innerHTML = '';
+            }
+        }
+
+        async function toggleMember(userId) {
+            try {
+                // Check if member is already assigned
+                const response = await apiService.getCard(currentCardId);
+                const card = response.card;
+                const isAssigned = card.members && card.members.find(m => m.id === userId);
                 
-                renderMembersModal();
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-        }
-
-        // Show add list form
-        function showAddListForm() {
-            document.querySelector('.add-list').style.display = 'none';
-            const form = document.getElementById('addListForm');
-            form.classList.add('active');
-            document.getElementById('listNameInput').focus();
-        }
-
-        // Hide add list form
-        function hideAddListForm() {
-            document.querySelector('.add-list').style.display = 'flex';
-            document.getElementById('addListForm').classList.remove('active');
-            document.getElementById('listNameInput').value = '';
-        }
-
-        // Add new list
-        function addList() {
-            const input = document.getElementById('listNameInput');
-            const title = input.value.trim();
-            const board = getCurrentBoard();
-            
-            if (title && board && userCanEdit(board.id, appData.currentUserId)) {
-                const newList = {
-                    id: 'list-' + Date.now(),
-                    title: title,
-                    cards: []
-                };
+                if (isAssigned) {
+                    await apiService.removeCardMember(currentCardId, userId);
+                } else {
+                    await apiService.addCardMember(currentCardId, userId);
+                }
                 
-                board.lists.push(newList);
-                renderCurrentBoard();
-                renderBoardsList();
+                // Reload card data
+                await openCardModal(currentCardId);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error toggling member:', error);
+                notify.error('Erro ao atualizar membro');
             }
         }
 
-        // Update list title
-        function updateListTitle(listId, newTitle) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
+        async function removeMember(userId) {
+            event.stopPropagation();
+            await toggleMember(userId);
+        }
+
+        // Due date
+        async function updateDueDate() {
+            const dueDateInput = document.getElementById('dueDateInput');
             
-            const list = board.lists.find(l => l.id === listId);
-            if (list) {
-                list.title = newTitle;
-                renderBoardsList();
+            try {
+                const dueDate = dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null;
+                await apiService.updateCard(currentCardId, { dueDate });
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error updating due date:', error);
+                notify.error('Erro ao atualizar data');
             }
         }
 
-        // Show add card form
-        function showAddCardForm(listId) {
-            document.querySelector(`#addCardForm-${listId}`).classList.add('active');
-            document.querySelector(`#cardComposer-${listId}`).focus();
-        }
-
-        // Hide add card form
-        function hideAddCardForm(listId) {
-            document.querySelector(`#addCardForm-${listId}`).classList.remove('active');
-            document.querySelector(`#cardComposer-${listId}`).value = '';
-        }
-
-        // Add new card
-        function addCard(listId) {
-            const composer = document.querySelector(`#cardComposer-${listId}`);
-            const title = composer.value.trim();
-            const board = getCurrentBoard();
+        // Tags
+        function renderTags(card) {
+            const tagsList = document.getElementById('tagsList');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
             
-            if (title && board) {
-                const list = board.lists.find(l => l.id === listId);
-                const newCard = {
-                    id: 'card-' + Date.now(),
-                    title: title,
-                    labels: [],
-                    members: [],
-                    tags: []
-                };
-                
-                list.cards.push(newCard);
-                renderCurrentBoard();
-                renderBoardsList();
+            if (card.tags && card.tags.length > 0) {
+                tagsList.innerHTML = card.tags.map(tag => `
+                    <div class="tag-item">
+                        ${tag}
+                        ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')">×</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                tagsList.innerHTML = '';
             }
         }
 
-        // Drag and drop functionality
-        let draggedCard = null;
-        let draggedCardData = null;
-        let sourceListId = null;
+        async function handleTagInput(event) {
+            if (event.key === 'Enter' && event.target.value.trim()) {
+                await addTag(event.target.value.trim());
+                event.target.value = '';
+            }
+        }
 
+        async function addTag(tag) {
+            try {
+                await apiService.addCardTag(currentCardId, tag);
+                const response = await apiService.getCard(currentCardId);
+                renderTags(response.card);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error adding tag:', error);
+                notify.error('Erro ao adicionar tag');
+            }
+        }
+
+        async function removeTag(tag) {
+            try {
+                await apiService.removeCardTag(currentCardId, tag);
+                const response = await apiService.getCard(currentCardId);
+                renderTags(response.card);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error removing tag:', error);
+                notify.error('Erro ao remover tag');
+            }
+        }
+
+        function focusTagInput() {
+            document.getElementById('tagInput').focus();
+        }
+
+        // Drag and drop
         function handleDragStart(e) {
-            draggedCard = e.target;
-            draggedCard.classList.add('dragging');
-            draggedCardData = {
-                id: draggedCard.dataset.cardId,
-                element: draggedCard
-            };
-            sourceListId = draggedCard.closest('.cards-container').dataset.listId;
+            const board = appState.currentBoard;
+            if (board.role !== 'admin' && board.role !== 'editor') {
+                e.preventDefault();
+                return;
+            }
+            
+            appState.draggedCard = e.target;
+            appState.sourceListId = e.target.closest('.cards-container').dataset.listId;
+            e.target.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
         }
 
         function handleDragEnd(e) {
             e.target.classList.remove('dragging');
-            
-            // Remove any drag-over classes
             document.querySelectorAll('.card').forEach(card => {
                 card.classList.remove('drag-over');
             });
@@ -2562,29 +2593,34 @@
             const container = e.currentTarget;
             const afterElement = getDragAfterElement(container, e.clientY);
             
-            // Visual feedback
             document.querySelectorAll('.card').forEach(card => {
                 card.classList.remove('drag-over');
             });
             
-            if (afterElement && afterElement !== draggedCard) {
+            if (afterElement && afterElement !== appState.draggedCard) {
                 afterElement.classList.add('drag-over');
             }
         }
 
-        function handleDrop(e) {
+        async function handleDrop(e) {
             e.preventDefault();
             
             const targetListId = e.currentTarget.dataset.listId;
             const targetContainer = e.currentTarget;
             const afterElement = getDragAfterElement(targetContainer, e.clientY);
             
-            // Update data model
-            moveCard(sourceListId, targetListId, draggedCardData.id, afterElement);
+            const cardId = appState.draggedCard.dataset.cardId;
+            const cards = [...targetContainer.querySelectorAll('.card:not(.dragging)')];
+            const position = afterElement ? cards.indexOf(afterElement) : cards.length;
             
-            // Re-render board
-            renderCurrentBoard();
-            renderBoardsList();
+            try {
+                await apiService.moveCard(cardId, targetListId, position);
+                await loadCurrentBoard();
+                await loadBoards(); // Update counts
+            } catch (error) {
+                console.error('Error moving card:', error);
+                notify.error('Erro ao mover cartão');
+            }
         }
 
         function getDragAfterElement(container, y) {
@@ -2602,282 +2638,34 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        function moveCard(sourceListId, targetListId, cardId, afterElement) {
-            const board = getCurrentBoard();
+        // Confirm dialog
+        function showConfirmDialog(title, message, onConfirm) {
+            const dialog = document.getElementById('confirmDialog');
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
             
-            // Find and remove card from source list
-            const sourceList = board.lists.find(l => l.id === sourceListId);
-            const cardIndex = sourceList.cards.findIndex(c => c.id === cardId);
-            const [movedCard] = sourceList.cards.splice(cardIndex, 1);
+            const confirmButton = document.getElementById('confirmButton');
+            confirmButton.onclick = onConfirm;
             
-            // Add card to target list
-            const targetList = board.lists.find(l => l.id === targetListId);
-            
-            if (afterElement) {
-                const afterCardId = afterElement.dataset.cardId;
-                const afterIndex = targetList.cards.findIndex(c => c.id === afterCardId);
-                targetList.cards.splice(afterIndex, 0, movedCard);
-            } else {
-                targetList.cards.push(movedCard);
-            }
+            dialog.classList.add('active');
         }
 
-        // Find card across all lists in current board
-        function findCard(cardId) {
-            const board = getCurrentBoard();
-            if (!board) return null;
-            
-            for (const list of board.lists) {
-                const card = list.cards.find(c => c.id === cardId);
-                if (card) return card;
-            }
-            return null;
+        function hideConfirmDialog() {
+            document.getElementById('confirmDialog').classList.remove('active');
         }
 
-        // Modal functionality
-        function openCardModal(cardId) {
-            const card = findCard(cardId);
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
-            if (card) {
-                // Set card details
-                document.getElementById('modalCardTitle').textContent = card.title;
-                document.getElementById('modalCardTitle').contentEditable = canEdit;
-                document.getElementById('cardDescription').value = card.description || '';
-                document.getElementById('cardDescription').readOnly = !canEdit;
-                
-                // Set due date
-                if (card.dueDate) {
-                    const date = new Date(card.dueDate);
-                    const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-                        .toISOString()
-                        .slice(0, 16);
-                    document.getElementById('dueDateInput').value = localDateTime;
-                } else {
-                    document.getElementById('dueDateInput').value = '';
-                }
-                document.getElementById('dueDateInput').disabled = !canEdit;
-                
-                // Store current card ID for saving changes
-                document.getElementById('cardModal').dataset.cardId = cardId;
-                
-                // Show/hide edit controls based on permissions
-                document.querySelectorAll('.sidebar-button').forEach(btn => {
-                    btn.style.display = canEdit ? 'flex' : 'none';
-                });
-                
-                document.getElementById('tagInput').style.display = canEdit ? 'block' : 'none';
-                
-                // Render members selector
-                renderMembersSelector(card);
-                
-                // Render tags
-                renderTags(card);
-                
-                // Show modal
-                document.getElementById('cardModal').classList.add('active');
-            }
+        // Logout
+        function logout() {
+            apiService.logout();
         }
 
-        function closeModal() {
-            // Save changes before closing
-            const modal = document.getElementById('cardModal');
-            const cardId = modal.dataset.cardId;
-            const card = findCard(cardId);
-            const board = getCurrentBoard();
-            
-            if (card && userCanEdit(board.id, appData.currentUserId)) {
-                card.title = document.getElementById('modalCardTitle').textContent;
-                card.description = document.getElementById('cardDescription').value;
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-            
-            modal.classList.remove('active');
-            document.getElementById('membersSelector').classList.remove('active');
-        }
-
-        // Members functionality
-        function toggleMembersSelector() {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const selector = document.getElementById('membersSelector');
-            selector.classList.toggle('active');
-        }
-
-        function renderMembersSelector(card) {
-            const selector = document.getElementById('membersSelector');
-            const assignedMembers = document.getElementById('assignedMembers');
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
-            if (!canEdit) {
-                selector.innerHTML = '';
-                renderAssignedMembers(card);
-                return;
-            }
-            
-            // Only show board members as options
-            const boardMembers = board.members.map(m => m.userId);
-            const availableUsers = appData.users.filter(u => boardMembers.includes(u.id));
-            
-            // Render member options
-            selector.innerHTML = availableUsers.map(user => {
-                const isSelected = card.members && card.members.includes(user.id);
-                return `
-                    <div class="member-option ${isSelected ? 'selected' : ''}" 
-                         onclick="toggleMember('${user.id}')">
-                        <div class="avatar" style="background-color: ${user.color}">${user.initials}</div>
-                        <div>${user.name}</div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Render assigned members
-            renderAssignedMembers(card);
-        }
-
-        function renderAssignedMembers(card) {
-            const assignedMembers = document.getElementById('assignedMembers');
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
-            if (card.members && card.members.length > 0) {
-                assignedMembers.innerHTML = card.members.map(memberId => {
-                    const member = appData.users.find(u => u.id === memberId);
-                    if (member) {
-                        return `
-                            <div class="assigned-member" style="background-color: ${member.color}" title="${member.name}">
-                                ${member.initials}
-                                ${canEdit ? `<div class="remove-member" onclick="removeMember('${memberId}')">×</div>` : ''}
-                            </div>
-                        `;
-                    }
-                    return '';
-                }).join('');
-            } else {
-                assignedMembers.innerHTML = '';
-            }
-        }
-
-        function toggleMember(userId) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const cardId = document.getElementById('cardModal').dataset.cardId;
-            const card = findCard(cardId);
-            
-            if (card) {
-                if (!card.members) card.members = [];
-                
-                const index = card.members.indexOf(userId);
-                if (index > -1) {
-                    card.members.splice(index, 1);
-                } else {
-                    card.members.push(userId);
-                }
-                
-                renderMembersSelector(card);
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-        }
-
-        function removeMember(userId) {
-            event.stopPropagation();
-            toggleMember(userId);
-        }
-
-        // Due date functionality
-        function updateDueDate() {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const cardId = document.getElementById('cardModal').dataset.cardId;
-            const card = findCard(cardId);
-            const dueDateInput = document.getElementById('dueDateInput');
-            
-            if (card) {
-                if (dueDateInput.value) {
-                    card.dueDate = new Date(dueDateInput.value).toISOString();
-                } else {
-                    delete card.dueDate;
-                }
-                renderCurrentBoard();
-                renderBoardsList();
-            }
-        }
-
-        // Tags functionality
-        function renderTags(card) {
-            const tagsList = document.getElementById('tagsList');
-            const board = getCurrentBoard();
-            const canEdit = userCanEdit(board.id, appData.currentUserId);
-            
-            if (card.tags && card.tags.length > 0) {
-                tagsList.innerHTML = card.tags.map(tag => `
-                    <div class="tag-item">
-                        ${tag}
-                        ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')">×</span>` : ''}
-                    </div>
-                `).join('');
-            } else {
-                tagsList.innerHTML = '';
-            }
-        }
-
-        function handleTagInput(event) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            if (event.key === 'Enter' && event.target.value.trim()) {
-                addTag(event.target.value.trim());
-                event.target.value = '';
-            }
-        }
-
-        function addTag(tag) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const cardId = document.getElementById('cardModal').dataset.cardId;
-            const card = findCard(cardId);
-            
-            if (card) {
-                if (!card.tags) card.tags = [];
-                
-                if (!card.tags.includes(tag)) {
-                    card.tags.push(tag);
-                    renderTags(card);
-                    renderCurrentBoard();
-                    renderBoardsList();
-                }
-            }
-        }
-
-        function removeTag(tag) {
-            const board = getCurrentBoard();
-            if (!userCanEdit(board.id, appData.currentUserId)) return;
-            
-            const cardId = document.getElementById('cardModal').dataset.cardId;
-            const card = findCard(cardId);
-            
-            if (card && card.tags) {
-                const index = card.tags.indexOf(tag);
-                if (index > -1) {
-                    card.tags.splice(index, 1);
-                    renderTags(card);
-                    renderCurrentBoard();
-                    renderBoardsList();
-                }
-            }
-        }
-
-        function focusTagInput() {
-            document.getElementById('tagInput').focus();
-        }
+        // Color selection
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -2919,7 +2707,13 @@
             }
         });
 
-        // Close boards menu when clicking outside
+        document.getElementById('membersModal').addEventListener('click', (e) => {
+            if (e.target.id === 'membersModal') {
+                closeMembersModal();
+            }
+        });
+
+        // Close menus when clicking outside
         document.addEventListener('click', (e) => {
             const boardsMenu = document.getElementById('boardsMenu');
             const boardsMenuBtn = document.querySelector('.boards-menu-btn');
@@ -2934,13 +2728,13 @@
                     menu.classList.remove('active');
                 });
             }
+            
+            // Close user search results
+            if (!e.target.closest('.user-search-input') && !e.target.closest('.user-search-results')) {
+                document.getElementById('userSearchResults')?.classList.remove('active');
+            }
         });
 
-        // Initialize the app when page loads
-        initializeApp();
     </script>
-<script src="js/services/api.service.js"></script>
-<script src="js/services/auth.guard.js"></script>
-<script src="js/utils/notifications.js"></script>    
 </body>
 </html>
