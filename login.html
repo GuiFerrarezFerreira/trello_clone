@@ -434,6 +434,9 @@
         </div>
     </div>
 
+    <!-- Load API Service first -->
+    <script src="js/services/api.service.js"></script>
+    
     <script>
         // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
@@ -533,51 +536,26 @@
             loadingSpinner.style.display = 'block';
             
             try {
-                // Simulate API call
-                const response = await fetch('api/login.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: emailInput.value,
-                        password: passwordInput.value,
-                        rememberMe: document.getElementById('rememberMe').checked
-                    })
-                });
+                // Use the API service
+                const response = await apiService.login(
+                    emailInput.value,
+                    passwordInput.value,
+                    document.getElementById('rememberMe').checked
+                );
                 
-                const data = await response.json();
-                
-                if (data.success) {
+                if (response.success) {
                     showAlert('success', 'Login realizado com sucesso! Redirecionando...');
-                    
-                    // Store user data
-                    if (data.token) {
-                        localStorage.setItem('authToken', data.token);
-                        localStorage.setItem('userId', data.userId);
-                        localStorage.setItem('userName', data.userName);
-                    }
                     
                     // Redirect to main app
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1500);
                 } else {
-                    showAlert('error', data.message || 'E-mail ou senha incorretos');
+                    showAlert('error', response.message || 'E-mail ou senha incorretos');
                 }
             } catch (error) {
-                // For now, simulate successful login since API doesn't exist
-                showAlert('success', 'Login simulado com sucesso! Redirecionando...');
-                
-                // Simulate storing user data
-                localStorage.setItem('authToken', 'fake-token-' + Date.now());
-                localStorage.setItem('userId', 'user-1');
-                localStorage.setItem('userName', 'Ana Silva');
-                
-                // Redirect to main app
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
+                console.error('Login error:', error);
+                showAlert('error', error.message || 'Erro ao fazer login. Tente novamente.');
             } finally {
                 // Reset button state
                 loginButton.disabled = false;
@@ -587,11 +565,19 @@
         });
 
         // Check if user is already logged in
-        window.addEventListener('load', function() {
-            const authToken = localStorage.getItem('authToken');
-            if (authToken) {
-                // Optionally redirect to main app if already logged in
-                // window.location.href = 'index.html';
+        window.addEventListener('load', async function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const user = await apiService.validateToken();
+                    if (user) {
+                        // User is already logged in, redirect to main app
+                        window.location.href = 'index.html';
+                    }
+                } catch (error) {
+                    // Token is invalid, continue with login page
+                    console.log('Invalid token, showing login page');
+                }
             }
         });
 
@@ -608,6 +594,19 @@
                 const provider = this.textContent.trim();
                 showAlert('error', `Login com ${provider} em desenvolvimento`);
             });
+        });
+
+        // Handle enter key on inputs
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                passwordInput.focus();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
         });
     </script>
 </body>

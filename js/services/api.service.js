@@ -4,7 +4,7 @@
 
 class ApiService {
     constructor() {
-        this.baseURL = 'http://localhost/trello-clone/api';
+        this.baseURL = 'http://localhost/trello_clone/api';
         this.token = localStorage.getItem('authToken');
     }
 
