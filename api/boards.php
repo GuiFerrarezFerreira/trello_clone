@@ -89,15 +89,23 @@ switch($method) {
                 
                 $cards = array();
                 while ($card = $card_stmt->fetch(PDO::FETCH_ASSOC)) {
-                    // Get card members
-                    $member_query = "SELECT user_id FROM card_members WHERE card_id = ?";
+                    // Get card members with full information
+                    $member_query = "SELECT u.id, u.first_name, u.last_name, u.initials, u.color 
+                                   FROM users u
+                                   JOIN card_members cm ON u.id = cm.user_id
+                                   WHERE cm.card_id = ?";
                     $member_stmt = $db->prepare($member_query);
                     $member_stmt->bindParam(1, $card['id']);
                     $member_stmt->execute();
                     
                     $card_members = array();
                     while ($member = $member_stmt->fetch(PDO::FETCH_ASSOC)) {
-                        $card_members[] = "user-" . $member['user_id'];
+                        $card_members[] = array(
+                            "id" => "user-" . $member['id'],
+                            "name" => $member['first_name'] . " " . $member['last_name'],
+                            "initials" => $member['initials'],
+                            "color" => $member['color']
+                        );
                     }
                     
                     $cards[] = array(
@@ -106,7 +114,7 @@ switch($method) {
                         "description" => $card['description'],
                         "labels" => $card['labels'] ? explode(',', $card['labels']) : array(),
                         "tags" => $card['tags'] ? explode(',', $card['tags']) : array(),
-                        "members" => $card_members,
+                        "members" => $card_members, // Agora com informações completas
                         "dueDate" => $card['due_date'],
                         "position" => $card['position']
                     );
