@@ -5,9 +5,24 @@
 class AuthGuard {
     constructor() {
         this.publicPages = ['login.php', 'register.php'];
+        this.initialized = false;
     }
 
     async checkAuth() {
+        // Aguarda o apiService estar disponível
+        if (typeof apiService === 'undefined') {
+            console.warn('ApiService não está carregado ainda. Aguardando...');
+            // Tenta novamente após 100ms
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Se ainda não estiver disponível após esperar, retorna true para páginas públicas
+            if (typeof apiService === 'undefined') {
+                const currentPage = window.location.pathname;
+                const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
+                return isPublicPage;
+            }
+        }
+
         const currentPage = window.location.pathname;
         const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
         
@@ -27,17 +42,25 @@ class AuthGuard {
         }
         
         if (token && !isPublicPage) {
-            // Validate token
-            const user = await apiService.validateToken();
-            if (!user) {
-                // Invalid token
-                apiService.logout();
+            try {
+                // Validate token
+                const user = await apiService.validateToken();
+                if (!user) {
+                    // Invalid token
+                    apiService.logout();
+                    return false;
+                }
+                
+                // Update user info
+                this.updateUserInfo(user);
+                return true;
+            } catch (error) {
+                console.error('Erro ao validar token:', error);
+                // Em caso de erro, remove token inválido
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.php';
                 return false;
             }
-            
-            // Update user info
-            this.updateUserInfo(user);
-            return true;
         }
         
         return true;
@@ -54,12 +77,45 @@ class AuthGuard {
             userName.textContent = `${user.firstName} ${user.lastName}`;
         }
     }
+
+    // Método para inicializar o AuthGuard quando tudo estiver pronto
+    async init() {
+        if (this.initialized) return;
+        
+        // Aguarda o DOM estar completamente carregado
+        if (document.readyState === 'loading') {
+            await new Promise(resolve => {
+                document.addEventListener('DOMContentLoaded', resolve);
+            });
+        }
+        
+        // Verifica se o apiService está disponível
+        let attempts = 0;
+        const maxAttempts = 50; // 5 segundos no máximo
+        
+        while (typeof apiService === 'undefined' && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        if (typeof apiService === 'undefined') {
+            console.error('ApiService não foi carregado. Verifique se api.service.js está incluído antes de auth.guard.js');
+            return;
+        }
+        
+        // Executa a verificação de autenticação
+        await this.checkAuth();
+        this.initialized = true;
+    }
 }
 
-// Initialize auth guard
+// Cria instância do AuthGuard
 const authGuard = new AuthGuard();
 
-// Check authentication on page load
-document.addEventListener('DOMContentLoaded', () => {
-    authGuard.checkAuth();
-});
+// Inicializa quando o script for carregado
+// Usa setTimeout para garantir que seja executado após todos os scripts síncronos
+setTimeout(() => {
+    authGuard.init().catch(error => {
+        console.error('Erro ao inicializar AuthGuard:', error);
+    });
+}, 0);
