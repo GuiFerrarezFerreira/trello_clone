@@ -29,7 +29,7 @@ if(
     $email_exists = $user->emailExists();
 
     // Check if email exists and password is correct
-    if($email_exists && password_verify($data->password, $user->password)) {
+    if($email_exists && $data->password == $user->password) {
         
         // Generate token
         $token = Token::generate($user->id);

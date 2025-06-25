@@ -123,7 +123,7 @@ switch($method) {
             echo json_encode(array(
                 "success" => true,
                 "board" => array(
-                    "id" => "board-" . $board['id'],
+                    "id" => $board['id'],
                     "title" => $board['title'],
                     "color" => $board['color'],
                     "role" => $board['role'],
@@ -149,7 +149,7 @@ switch($method) {
             $boards = array();
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $boards[] = array(
-                    "id" => "board-" . $row['id'],
+                    "id" => $row['id'],
                     "title" => $row['title'],
                     "color" => $row['color'],
                     "role" => $row['role'],
@@ -196,7 +196,7 @@ switch($method) {
                 echo json_encode(array(
                     "success" => true,
                     "message" => "Quadro criado com sucesso.",
-                    "boardId" => "board-" . $board_id
+                    "boardId" => $board_id
                 ));
             } catch (Exception $e) {
                 $db->rollBack();

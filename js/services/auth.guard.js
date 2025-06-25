@@ -4,7 +4,7 @@
 
 class AuthGuard {
     constructor() {
-        this.publicPages = ['login.html', 'register.html'];
+        this.publicPages = ['login.php', 'register.php'];
     }
 
     async checkAuth() {
@@ -16,13 +16,13 @@ class AuthGuard {
         
         if (!token && !isPublicPage) {
             // No token and trying to access protected page
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
             return false;
         }
         
         if (token && isPublicPage) {
             // Has token and trying to access public page
-            window.location.href = 'index.html';
+            window.location.href = 'index.php';
             return false;
         }
         

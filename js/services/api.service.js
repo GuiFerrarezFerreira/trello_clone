@@ -29,7 +29,7 @@ class ApiService {
             if (response.status === 401) {
                 // Token expired or invalid
                 this.logout();
-                window.location.href = '/login.html';
+                window.location.href = 'login.php';
             }
             throw new Error(data.message || 'Erro na requisição');
         }
@@ -115,7 +115,7 @@ class ApiService {
         localStorage.removeItem('userName');
         localStorage.removeItem('userInitials');
         localStorage.removeItem('userColor');
-        window.location.href = '/login.html';
+        window.location.href = 'login.php';
     }
 
     // ===========================
