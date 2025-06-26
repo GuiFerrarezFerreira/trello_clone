@@ -2,24 +2,9 @@
 // ===================================
 // index.php - Página Principal
 // ===================================
-session_start();
-
-// Verificar se o usuário está logado
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Dados do usuário da sessão
-$user = [
-    'id' => $_SESSION['user_id'] ?? '',
-    'firstName' => $_SESSION['user_firstName'] ?? '',
-    'lastName' => $_SESSION['user_lastName'] ?? '',
-    'initials' => $_SESSION['user_initials'] ?? '',
-    'color' => $_SESSION['user_color'] ?? '#0079bf'
-];
+// Remove a verificação de sessão PHP pois estamos usando JWT
 ?>
-<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -1540,8 +1525,8 @@ $user = [
         </div>
         <div class="navbar-right">
             <div class="current-user">
-                <div class="user-avatar-small" id="userAvatar" style="background-color: <?php echo htmlspecialchars($user['color']); ?>"><?php echo htmlspecialchars($user['initials']); ?></div>
-                <span id="userName"><?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?></span>
+                <div class="user-avatar-small" id="userAvatar"></div>
+                <span id="userName"></span>
             </div>
             <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
@@ -1685,20 +1670,41 @@ $user = [
     <script>
         // App state
         let appState = {
-            currentUserId: 'user-<?php echo htmlspecialchars($user['id']); ?>',
+            currentUserId: null,
             currentBoardId: null,
             currentBoard: null,
             boards: [],
             users: [],
             draggedCard: null,
-            sourceListId: null
+            sourceListId: null,
+            currentUser: null
         };
 
         // Initialize app
         async function initializeApp() {
             try {
-                // Não precisamos mais validar o token aqui, pois o PHP já fez isso
-                // Apenas carregamos os boards
+                // Verifica se tem token
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = 'login.php';
+                    return;
+                }
+
+                // Valida o token e obtém informações do usuário
+                const user = await apiService.validateToken();
+                if (!user) {
+                    apiService.logout();
+                    return;
+                }
+
+                // Atualiza o estado com as informações do usuário
+                appState.currentUser = user;
+                appState.currentUserId = user.id;
+
+                // Atualiza a UI com as informações do usuário
+                updateUserUI(user);
+
+                // Carrega os boards
                 await loadBoards();
 
                 // Hide loading screen
@@ -1706,6 +1712,19 @@ $user = [
             } catch (error) {
                 console.error('Initialization error:', error);
                 notify.error('Erro ao inicializar aplicação');
+                apiService.logout();
+            }
+        }
+
+        // Atualiza a UI com as informações do usuário
+        function updateUserUI(user) {
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            
+            if (userAvatar && userName) {
+                userAvatar.textContent = user.initials;
+                userAvatar.style.backgroundColor = user.color;
+                userName.textContent = `${user.firstName} ${user.lastName}`;
             }
         }
 

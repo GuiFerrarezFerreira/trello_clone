@@ -37,8 +37,8 @@ async checkAuth() {
             }
         }
 
-        const currentPage = window.location.pathname;
-        const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
+        //const currentPage = window.location.pathname;
+        //const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
         
         // Check if user has token
         const token = localStorage.getItem('authToken');
