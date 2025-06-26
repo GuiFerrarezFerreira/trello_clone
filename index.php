@@ -108,6 +108,20 @@
             font-size: 14px;
         }
 
+        .admin-link {
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .admin-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
         .current-user {
             display: flex;
             align-items: center;
@@ -117,7 +131,7 @@
             border-radius: 3px;
             cursor: pointer;
             transition: all 0.2s;
-        }
+        } 
 
         .current-user:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -1524,6 +1538,9 @@
             </button>
         </div>
         <div class="navbar-right">
+            <a href="admin.php" class="admin-link" id="adminLink" style="display: none;">
+                ⚙️ Administração
+            </a>
             <div class="current-user">
                 <div class="user-avatar-small" id="userAvatar"></div>
                 <span id="userName"></span>
@@ -2127,6 +2144,8 @@
                 notify.error('Erro ao criar lista');
             }
         }
+
+
 
         async function updateListTitle(listId, newTitle) {
             if (!newTitle.trim()) return;
