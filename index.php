@@ -1721,6 +1721,11 @@
                 // Atualiza a UI com as informações do usuário
                 updateUserUI(user);
 
+                // Show admin link if user is system admin
+                if (user.isAdmin) {
+                    document.getElementById('adminLink').style.display = 'inline-block';
+                }
+                
                 // Carrega os boards
                 await loadBoards();
 
