@@ -1685,7 +1685,7 @@ $user = [
     <script>
         // App state
         let appState = {
-            currentUserId: '<?php echo htmlspecialchars($user['id']); ?>',
+            currentUserId: 'user-<?php echo htmlspecialchars($user['id']); ?>',
             currentBoardId: null,
             currentBoard: null,
             boards: [],

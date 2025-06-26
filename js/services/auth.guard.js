@@ -8,18 +8,32 @@ class AuthGuard {
         this.initialized = false;
     }
 
-    async checkAuth() {
+async checkAuth() {
+        const currentPage = window.location.pathname;
+        const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
+        
+        // Para páginas públicas, não precisa verificar autenticação
+        if (isPublicPage) {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Se tem token em página pública, redireciona para index
+                window.location.href = 'index.php';
+                return false;
+            }
+            return true;
+        }
+        
         // Aguarda o apiService estar disponível
         if (typeof apiService === 'undefined') {
             console.warn('ApiService não está carregado ainda. Aguardando...');
             // Tenta novamente após 100ms
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // Se ainda não estiver disponível após esperar, retorna true para páginas públicas
+            // Se ainda não estiver disponível após esperar, redireciona para login
             if (typeof apiService === 'undefined') {
-                const currentPage = window.location.pathname;
-                const isPublicPage = this.publicPages.some(page => currentPage.includes(page));
-                return isPublicPage;
+                console.error('ApiService não foi carregado');
+                window.location.href = 'login.php';
+                return false;
             }
         }
 
