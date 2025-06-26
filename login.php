@@ -4,69 +4,9 @@
 // ===================================
 session_start();
 
-// Se já estiver logado, redireciona para index
+// Se já estiver logado (via sessão PHP), limpa a sessão para usar apenas JS
 if (isset($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit();
-}
-
-// Processar login se o formulário foi enviado
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'] ?? '';
-    $rememberMe = isset($_POST['rememberMe']);
-    
-    if (empty($email) || empty($password)) {
-        $error = 'Por favor, preencha todos os campos.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Por favor, insira um e-mail válido.';
-    } else {
-        // Fazer requisição para a API
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://localhost/trello_clone/api/login.php");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'email' => $email,
-            'password' => $password,
-            'rememberMe' => $rememberMe
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($response) {
-            $data = json_decode($response, true);
-            
-            if ($data['success'] ?? false) {
-                // Salvar dados na sessão
-                $_SESSION['user_id'] = str_replace('user-', '', $data['userId']);
-                $_SESSION['user_token'] = $data['token'];
-                $_SESSION['user_firstName'] = explode(' ', $data['userName'])[0] ?? '';
-                $_SESSION['user_lastName'] = explode(' ', $data['userName'])[1] ?? '';
-                $_SESSION['user_initials'] = $data['userInitials'];
-                $_SESSION['user_color'] = $data['userColor'];
-                
-                // Se "lembrar de mim", criar cookie
-                if ($rememberMe) {
-                    setcookie('auth_token', $data['token'], time() + (7 * 24 * 60 * 60), '/', '', true, true);
-                }
-                
-                // Redirecionar para index
-                header('Location: index.php');
-                exit();
-            } else {
-                $error = $data['message'] ?? 'E-mail ou senha incorretos.';
-            }
-        } else {
-            $error = 'Erro ao conectar com o servidor. Tente novamente.';
-        }
-    }
+    session_destroy();
 }
 ?>
 <!DOCTYPE html>
@@ -436,30 +376,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         <div class="login-card">
             <h2 class="login-title">Faça login em sua conta</h2>
             
-            <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($success): ?>
-                <div class="alert alert-success">
-                    <?php echo htmlspecialchars($success); ?>
-                </div>
-            <?php endif; ?>
+            <div id="alertContainer"></div>
 
-            <form method="POST" action="" id="loginForm" novalidate>
-                <input type="hidden" name="login" value="1">
-                
+            <form id="loginForm" novalidate>
                 <div class="form-group">
                     <label class="form-label" for="email">E-mail</label>
                     <input 
                         type="email" 
-                        class="form-input <?php echo $error && isset($_POST['email']) ? 'error' : ''; ?>" 
+                        class="form-input" 
                         id="email" 
                         name="email"
                         placeholder="Digite seu e-mail"
-                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                         required
                         autocomplete="email"
                     >
@@ -471,7 +398,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                     <div class="password-container">
                         <input 
                             type="password" 
-                            class="form-input <?php echo $error && isset($_POST['password']) ? 'error' : ''; ?>" 
+                            class="form-input" 
                             id="password" 
                             name="password"
                             placeholder="Digite sua senha"
@@ -487,7 +414,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 
                 <div class="remember-forgot">
                     <label class="remember-me">
-                        <input type="checkbox" id="rememberMe" name="rememberMe" <?php echo isset($_POST['rememberMe']) ? 'checked' : ''; ?>>
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
                         <span>Lembrar de mim</span>
                     </label>
                     <a href="#" class="forgot-password">Esqueceu a senha?</a>
@@ -519,7 +446,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         </div>
     </div>
 
+    <script src="js/services/api.service.js"></script>
     <script>
+        // Alert functions
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function clearAlerts() {
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+
         // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -572,8 +514,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             }
         });
 
-        // Handle form submission (client-side validation)
-        loginForm.addEventListener('submit', function(e) {
+        // Handle form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear alerts
+            clearAlerts();
+            
             // Reset errors
             hideError(emailInput, emailError);
             hideError(passwordInput, passwordError);
@@ -584,23 +531,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             if (!emailInput.value) {
                 showError(emailInput, emailError, 'O e-mail é obrigatório');
                 isValid = false;
-                e.preventDefault();
             } else if (!validateEmail(emailInput.value)) {
                 showError(emailInput, emailError, 'Por favor, insira um e-mail válido');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!passwordInput.value) {
                 showError(passwordInput, passwordError, 'A senha é obrigatória');
                 isValid = false;
-                e.preventDefault();
             }
             
-            if (isValid) {
-                // Show loading state
-                loginButton.disabled = true;
-                buttonText.innerHTML = 'Entrando... <span class="loading-spinner"></span>';
+            if (!isValid) return;
+            
+            // Show loading state
+            loginButton.disabled = true;
+            buttonText.innerHTML = 'Entrando... <span class="loading-spinner"></span>';
+            
+            try {
+                const rememberMe = document.getElementById('rememberMe').checked;
+                const response = await apiService.login(
+                    emailInput.value,
+                    passwordInput.value,
+                    rememberMe
+                );
+                
+                if (response.success) {
+                    // Save token in localStorage (handled by apiService)
+                    // Redirect to index
+                    window.location.href = 'index.php';
+                } else {
+                    showAlert(response.message || 'E-mail ou senha incorretos');
+                    loginButton.disabled = false;
+                    buttonText.textContent = 'Entrar';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert(error.message || 'Erro ao fazer login. Tente novamente.');
+                loginButton.disabled = false;
+                buttonText.textContent = 'Entrar';
             }
         });
 
@@ -608,6 +576,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         document.querySelector('.forgot-password').addEventListener('click', function(e) {
             e.preventDefault();
             alert('Funcionalidade de recuperação de senha em desenvolvimento');
+        });
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Redirect to index if already has token
+                window.location.href = 'index.php';
+            }
         });
     </script>
 </body>

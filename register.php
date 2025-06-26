@@ -4,80 +4,9 @@
 // ===================================
 session_start();
 
-// Se já estiver logado, redireciona para index
+// Se já estiver logado (via sessão PHP), limpa a sessão para usar apenas JS
 if (isset($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit();
-}
-
-// Processar registro se o formulário foi enviado
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
-    $firstName = trim($_POST['firstName'] ?? '');
-    $lastName = trim($_POST['lastName'] ?? '');
-    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirmPassword'] ?? '';
-    $acceptTerms = isset($_POST['acceptTerms']);
-    
-    // Validações
-    if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
-        $error = 'Por favor, preencha todos os campos obrigatórios.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Por favor, insira um e-mail válido.';
-    } elseif (strlen($password) < 8) {
-        $error = 'A senha deve ter pelo menos 8 caracteres.';
-    } elseif ($password !== $confirmPassword) {
-        $error = 'As senhas não coincidem.';
-    } elseif (!$acceptTerms) {
-        $error = 'Você precisa aceitar os termos para continuar.';
-    } else {
-        // Fazer requisição para a API
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://localhost/trello_clone/api/register.php");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'email' => $email,
-            'password' => $password
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($response) {
-            $data = json_decode($response, true);
-            
-            if ($data['success'] ?? false) {
-                $success = 'Conta criada com sucesso! Você será redirecionado para o login...';
-                // Redirecionar após 2 segundos
-                header("Refresh: 2; url=login.php");
-            } else {
-                $error = $data['message'] ?? 'Erro ao criar conta. Tente novamente.';
-            }
-        } else {
-            $error = 'Erro ao conectar com o servidor. Tente novamente.';
-        }
-    }
-}
-
-// Função para calcular força da senha
-function getPasswordStrength($password) {
-    $strength = 0;
-    
-    if (strlen($password) >= 8) $strength++;
-    if (preg_match('/[a-z]/', $password)) $strength++;
-    if (preg_match('/[A-Z]/', $password)) $strength++;
-    if (preg_match('/[0-9]/', $password)) $strength++;
-    if (preg_match('/[$@#&!]/', $password)) $strength++;
-    
-    return $strength;
+    session_destroy();
 }
 ?>
 <!DOCTYPE html>
@@ -553,11 +482,11 @@ function getPasswordStrength($password) {
             <p class="register-subtitle">Crie sua conta gratuita</p>
             
             <div class="progress-steps">
-                <div class="step active">
+                <div class="step active" id="step1">
                     <div class="step-number">1</div>
                     <span>Dados pessoais</span>
                 </div>
-                <div class="step <?php echo $success ? 'active' : ''; ?>">
+                <div class="step" id="step2">
                     <div class="step-number">2</div>
                     <span>Confirmação</span>
                 </div>
@@ -567,21 +496,9 @@ function getPasswordStrength($password) {
         <div class="register-card">
             <h2 class="register-title">Cadastre-se para começar</h2>
             
-            <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($success): ?>
-                <div class="alert alert-success">
-                    <?php echo htmlspecialchars($success); ?>
-                </div>
-            <?php endif; ?>
+            <div id="alertContainer"></div>
 
-            <form method="POST" action="" id="registerForm" novalidate>
-                <input type="hidden" name="register" value="1">
-                
+            <form id="registerForm" novalidate>
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label" for="firstName">Nome</label>
@@ -591,7 +508,6 @@ function getPasswordStrength($password) {
                             id="firstName" 
                             name="firstName"
                             placeholder="Seu nome"
-                            value="<?php echo htmlspecialchars($_POST['firstName'] ?? ''); ?>"
                             required
                             autocomplete="given-name"
                         >
@@ -606,7 +522,6 @@ function getPasswordStrength($password) {
                             id="lastName" 
                             name="lastName"
                             placeholder="Seu sobrenome"
-                            value="<?php echo htmlspecialchars($_POST['lastName'] ?? ''); ?>"
                             required
                             autocomplete="family-name"
                         >
@@ -622,7 +537,6 @@ function getPasswordStrength($password) {
                         id="email" 
                         name="email"
                         placeholder="seu@email.com"
-                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                         required
                         autocomplete="email"
                     >
@@ -674,14 +588,14 @@ function getPasswordStrength($password) {
 
                 <div class="terms-container">
                     <label class="terms-checkbox">
-                        <input type="checkbox" id="acceptTerms" name="acceptTerms" <?php echo isset($_POST['acceptTerms']) ? 'checked' : ''; ?> required>
+                        <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
                         <span>Eu concordo com os <a href="#" onclick="alert('Termos de Serviço em desenvolvimento'); return false;">Termos de Serviço</a> e a <a href="#" onclick="alert('Política de Privacidade em desenvolvimento'); return false;">Política de Privacidade</a> do Trello Clone</span>
                     </label>
                     <span class="error-message" id="termsError">Você precisa aceitar os termos para continuar</span>
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="registerButton" <?php echo $success ? 'disabled' : ''; ?>>
-                    <span id="buttonText"><?php echo $success ? 'Redirecionando...' : 'Criar conta'; ?></span>
+                <button type="submit" class="btn btn-primary" id="registerButton">
+                    <span id="buttonText">Criar conta</span>
                 </button>
             </form>
 
@@ -706,7 +620,22 @@ function getPasswordStrength($password) {
         </div>
     </div>
 
+    <script src="js/services/api.service.js"></script>
     <script>
+        // Alert functions
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function clearAlerts() {
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+
         // Toggle password visibility
         function setupPasswordToggle(toggleId, inputId) {
             const toggle = document.getElementById(toggleId);
@@ -826,13 +755,10 @@ function getPasswordStrength($password) {
                 showError(this, document.getElementById('emailError'), 'Por favor, insira um e-mail válido');
             } else if (this.value) {
                 hideError(this, document.getElementById('emailError'));
-                // Here you would normally check if email is already registered
-                // For now, we'll simulate it's available
-                setTimeout(() => {
-                    if (validateEmail(this.value)) {
-                        showSuccess(this, document.getElementById('emailSuccess'));
-                    }
-                }, 500);
+                // Email validation visual feedback
+                if (validateEmail(this.value)) {
+                    showSuccess(this, document.getElementById('emailSuccess'));
+                }
             } else {
                 hideError(this, document.getElementById('emailError'));
             }
@@ -871,8 +797,13 @@ function getPasswordStrength($password) {
             }
         });
 
-        // Handle form submission (client-side validation)
-        registerForm.addEventListener('submit', function(e) {
+        // Handle form submission
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear alerts
+            clearAlerts();
+            
             // Reset all errors
             const errorElements = document.querySelectorAll('.error-message');
             errorElements.forEach(el => el.classList.remove('show'));
@@ -886,55 +817,85 @@ function getPasswordStrength($password) {
             if (!firstNameInput.value.trim()) {
                 showError(firstNameInput, document.getElementById('firstNameError'), 'O nome é obrigatório');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!lastNameInput.value.trim()) {
                 showError(lastNameInput, document.getElementById('lastNameError'), 'O sobrenome é obrigatório');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!emailInput.value) {
                 showError(emailInput, document.getElementById('emailError'), 'O e-mail é obrigatório');
                 isValid = false;
-                e.preventDefault();
             } else if (!validateEmail(emailInput.value)) {
                 showError(emailInput, document.getElementById('emailError'), 'Por favor, insira um e-mail válido');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!passwordInput.value) {
                 showError(passwordInput, document.getElementById('passwordError'), 'A senha é obrigatória');
                 isValid = false;
-                e.preventDefault();
             } else if (passwordInput.value.length < 8) {
                 showError(passwordInput, document.getElementById('passwordError'), 'A senha deve ter pelo menos 8 caracteres');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!confirmPasswordInput.value) {
                 showError(confirmPasswordInput, document.getElementById('confirmPasswordError'), 'Por favor, confirme sua senha');
                 isValid = false;
-                e.preventDefault();
             } else if (passwordInput.value !== confirmPasswordInput.value) {
                 showError(confirmPasswordInput, document.getElementById('confirmPasswordError'), 'As senhas não coincidem');
                 isValid = false;
-                e.preventDefault();
             }
             
             if (!acceptTermsInput.checked) {
                 document.getElementById('termsError').classList.add('show');
                 isValid = false;
-                e.preventDefault();
             }
             
-            if (isValid) {
-                // Show loading state
-                registerButton.disabled = true;
-                buttonText.innerHTML = 'Criando conta... <span class="loading-spinner"></span>';
+            if (!isValid) return;
+            
+            // Show loading state
+            registerButton.disabled = true;
+            buttonText.innerHTML = 'Criando conta... <span class="loading-spinner"></span>';
+            
+            try {
+                const response = await apiService.register(
+                    firstNameInput.value.trim(),
+                    lastNameInput.value.trim(),
+                    emailInput.value.trim(),
+                    passwordInput.value
+                );
+                
+                if (response.success) {
+                    // Update progress steps
+                    document.getElementById('step2').classList.add('active');
+                    
+                    showAlert('Conta criada com sucesso! Redirecionando para o login...', 'success');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'login.php';
+                    }, 2000);
+                } else {
+                    showAlert(response.message || 'Erro ao criar conta. Tente novamente.');
+                    registerButton.disabled = false;
+                    buttonText.textContent = 'Criar conta';
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showAlert(error.message || 'Erro ao criar conta. Tente novamente.');
+                registerButton.disabled = false;
+                buttonText.textContent = 'Criar conta';
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Redirect to index if already has token
+                window.location.href = 'index.php';
             }
         });
     </script>
