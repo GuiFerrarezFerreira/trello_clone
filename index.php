@@ -1,10 +1,4 @@
-<?php
-// ===================================
-// index.php - Página Principal
-// ===================================
-// Remove a verificação de sessão PHP pois estamos usando JWT
-?>
-
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -444,6 +438,42 @@
             gap: 20px;
         }
 
+        .board-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* View Switcher */
+        .view-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .view-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .board-members {
             display: flex;
             align-items: center;
@@ -704,6 +734,7 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        /* Kanban View (default) */
         .board-container {
             padding: 0 20px 20px;
             display: flex;
@@ -1096,6 +1127,274 @@
         .list-name-input:focus {
             outline: none;
             border-color: #026aa7;
+        }
+
+        /* Table View */
+        .table-view-container {
+            padding: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .cards-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
+        }
+
+        .cards-table th {
+            background: #f4f5f7;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #5e6c84;
+            border-bottom: 1px solid #e4e6ea;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .cards-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e4e6ea;
+            vertical-align: top;
+        }
+
+        .cards-table tr:hover {
+            background: #f4f5f7;
+        }
+
+        .table-card-title {
+            font-weight: 500;
+            color: #172b4d;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-card-title:hover {
+            color: #0079bf;
+            text-decoration: underline;
+        }
+
+        .table-list-name {
+            background: #e4e6ea;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .table-members {
+            display: flex;
+            gap: 4px;
+        }
+
+        .table-member-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .table-due-date {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            background: #f4f5f7;
+            display: inline-block;
+        }
+
+        .table-due-date.overdue {
+            background: #eb5a46;
+            color: white;
+        }
+
+        .table-due-date.due-soon {
+            background: #f2d600;
+            color: #172b4d;
+        }
+
+        .table-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .cards-table tr:hover .table-actions {
+            opacity: 1;
+        }
+
+        .table-action-btn {
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            color: #6b778c;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .table-action-btn:hover {
+            background: #e4e6ea;
+            color: #172b4d;
+        }
+
+        .table-action-btn.delete:hover {
+            background: #eb5a46;
+            color: white;
+        }
+
+        /* Calendar View */
+        .calendar-view-container {
+            padding: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .calendar-nav-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #172b4d;
+        }
+
+        .calendar-nav-btn:hover {
+            background: #f4f5f7;
+            border-color: #c1c7d0;
+        }
+
+        .calendar-current-month {
+            font-size: 20px;
+            font-weight: 600;
+            color: #172b4d;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e4e6ea;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
+        }
+
+        .calendar-day-header {
+            background: #f4f5f7;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #5e6c84;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 8px;
+            position: relative;
+        }
+
+        .calendar-day.other-month {
+            background: #fafbfc;
+        }
+
+        .calendar-day.today {
+            background: #e4f0f6;
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            color: #172b4d;
+            margin-bottom: 8px;
+        }
+
+        .calendar-day.other-month .calendar-day-number {
+            color: #6b778c;
+        }
+
+        .calendar-card {
+            background: #0079bf;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .calendar-card:hover {
+            transform: translateX(2px);
+            box-shadow: 0 1px 4px rgba(9, 30, 66, 0.2);
+        }
+
+        .calendar-card.overdue {
+            background: #eb5a46;
+        }
+
+        .calendar-card.due-soon {
+            background: #f2d600;
+            color: #172b4d;
+        }
+
+        .calendar-more {
+            font-size: 11px;
+            color: #5e6c84;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .calendar-more:hover {
+            color: #172b4d;
+            text-decoration: underline;
         }
 
         .modal {
@@ -1513,6 +1812,10 @@
                 border-top: 1px solid #e4e6ea;
                 margin-top: 20px;
             }
+            
+            .view-switcher {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -1694,7 +1997,8 @@
             users: [],
             draggedCard: null,
             sourceListId: null,
-            currentUser: null
+            currentUser: null,
+            currentView: 'kanban' // Default view
         };
 
         // Initialize app
@@ -1800,6 +2104,7 @@
         // Switch board
         async function switchBoard(boardId) {
             appState.currentBoardId = boardId;
+            appState.currentView = 'kanban'; // Reset to default view
             renderBoardsList();
             await loadCurrentBoard();
             toggleBoardsMenu();
@@ -1817,6 +2122,12 @@
 
         function hideLoadingScreen() {
             document.getElementById('loadingScreen').classList.add('hide');
+        }
+
+        // Switch view
+        function switchView(view) {
+            appState.currentView = view;
+            renderCurrentBoard();
         }
 
         // Render boards list
@@ -1881,19 +2192,57 @@
                 </div>
             `).join('');
             
-            boardContent.innerHTML = `
+            // Header with view switcher
+            let boardHeaderHTML = `
                 <div class="board-header">
                     <div class="board-header-left">
                         <div class="board-title" ${canEdit ? 'onclick="editBoardTitle()"' : ''}>${board.title}</div>
                         <span class="member-role role-${board.role}">${board.role}</span>
                     </div>
-                    <div class="board-members">
-                        <div class="board-members-list">
-                            ${membersHTML}
+                    <div class="board-header-right">
+                        <div class="view-switcher">
+                            <button class="view-btn ${appState.currentView === 'kanban' ? 'active' : ''}" 
+                                    onclick="switchView('kanban')">
+                                📋 Kanban
+                            </button>
+                            <button class="view-btn ${appState.currentView === 'table' ? 'active' : ''}" 
+                                    onclick="switchView('table')">
+                                📊 Tabela
+                            </button>
+                            <button class="view-btn ${appState.currentView === 'calendar' ? 'active' : ''}" 
+                                    onclick="switchView('calendar')">
+                                📅 Calendário
+                            </button>
                         </div>
-                        ${isAdmin ? '<div class="add-member-btn" onclick="openMembersModal()" title="Gerenciar membros">+</div>' : ''}
+                        <div class="board-members">
+                            <div class="board-members-list">
+                                ${membersHTML}
+                            </div>
+                            ${isAdmin ? '<div class="add-member-btn" onclick="openMembersModal()" title="Gerenciar membros">+</div>' : ''}
+                        </div>
                     </div>
                 </div>
+            `;
+            
+            // Render based on current view
+            let viewHTML = '';
+            switch (appState.currentView) {
+                case 'table':
+                    viewHTML = renderTableView(board, canEdit);
+                    break;
+                case 'calendar':
+                    viewHTML = renderCalendarView(board, canEdit);
+                    break;
+                default:
+                    viewHTML = renderKanbanView(board, canEdit);
+            }
+            
+            boardContent.innerHTML = boardHeaderHTML + viewHTML;
+        }
+
+        // Render Kanban View
+        function renderKanbanView(board, canEdit) {
+            return `
                 <div class="board-container" id="board">
                     ${board.lists.map(list => createListHTML(list, canEdit)).join('')}
                     ${canEdit ? `
@@ -1910,6 +2259,257 @@
                     ` : ''}
                 </div>
             `;
+        }
+
+        // Render Table View
+        function renderTableView(board, canEdit) {
+            // Collect all cards from all lists
+            const allCards = [];
+            board.lists.forEach(list => {
+                list.cards.forEach(card => {
+                    allCards.push({
+                        ...card,
+                        listName: list.title,
+                        listId: list.id
+                    });
+                });
+            });
+
+            // Sort cards by due date
+            allCards.sort((a, b) => {
+                if (!a.dueDate && !b.dueDate) return 0;
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            });
+
+            return `
+                <div class="table-view-container">
+                    <table class="cards-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Lista</th>
+                                <th>Membros</th>
+                                <th>Data de Vencimento</th>
+                                <th>Tags</th>
+                                ${canEdit ? '<th>Ações</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${allCards.map(card => renderTableRow(card, canEdit)).join('')}
+                        </tbody>
+                    </table>
+                    ${allCards.length === 0 ? `
+                        <div style="text-align: center; padding: 40px; color: #5e6c84;">
+                            <h3>Nenhum cartão encontrado</h3>
+                            <p>Crie cartões nas listas para vê-los aqui</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Render table row
+        function renderTableRow(card, canEdit) {
+            // Due date formatting
+            let dueDateHTML = '-';
+            if (card.dueDate) {
+                const dueDate = new Date(card.dueDate);
+                const now = new Date();
+                const diffTime = dueDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let dueDateClass = '';
+                if (diffDays < 0) dueDateClass = 'overdue';
+                else if (diffDays <= 1) dueDateClass = 'due-soon';
+                
+                const dateStr = dueDate.toLocaleDateString('pt-BR');
+                dueDateHTML = `<span class="table-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
+            }
+
+            // Members
+            let membersHTML = '-';
+            if (card.members && card.members.length > 0) {
+                membersHTML = '<div class="table-members">' +
+                    card.members.map(member => `
+                        <div class="table-member-avatar" 
+                             style="background-color: ${member.color}" 
+                             title="${member.name}">
+                            ${member.initials}
+                        </div>
+                    `).join('') +
+                '</div>';
+            }
+
+            // Tags
+            let tagsHTML = '-';
+            if (card.tags && card.tags.length > 0) {
+                tagsHTML = '<div class="table-tags">' +
+                    card.tags.map(tag => `<span class="tag">#${tag}</span>`).join('') +
+                '</div>';
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <div class="table-card-title" onclick="openCardModal('${card.id}')">
+                            ${card.title}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="table-list-name">${card.listName}</span>
+                    </td>
+                    <td>${membersHTML}</td>
+                    <td>${dueDateHTML}</td>
+                    <td>${tagsHTML}</td>
+                    ${canEdit ? `
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-action-btn" onclick="openCardModal('${card.id}')">
+                                    ✏️ Editar
+                                </button>
+                                <button class="table-action-btn delete" onclick="deleteCard(event, '${card.id}')">
+                                    🗑️ Excluir
+                                </button>
+                            </div>
+                        </td>
+                    ` : ''}
+                </tr>
+            `;
+        }
+
+        // Render Calendar View
+        function renderCalendarView(board, canEdit) {
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            return `
+                <div class="calendar-view-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn" onclick="changeMonth(-1)">←</button>
+                            <div class="calendar-current-month" id="currentMonthYear">
+                                ${getMonthName(currentMonth)} ${currentYear}
+                            </div>
+                            <button class="calendar-nav-btn" onclick="changeMonth(1)">→</button>
+                        </div>
+                        <button class="calendar-nav-btn" onclick="goToToday()">Hoje</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        ${renderCalendarGrid(currentYear, currentMonth, board)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calendar helpers
+        let calendarDate = new Date();
+
+        function getMonthName(month) {
+            const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            return months[month];
+        }
+
+        function changeMonth(direction) {
+            calendarDate.setMonth(calendarDate.getMonth() + direction);
+            renderCurrentBoard();
+        }
+
+        function goToToday() {
+            calendarDate = new Date();
+            renderCurrentBoard();
+        }
+
+        function renderCalendarGrid(year, month, board) {
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const prevLastDay = new Date(year, month, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(1 - firstDay.getDay());
+            
+            // Collect cards with due dates
+            const cardsWithDates = [];
+            board.lists.forEach(list => {
+                list.cards.forEach(card => {
+                    if (card.dueDate) {
+                        cardsWithDates.push({
+                            ...card,
+                            listName: list.title
+                        });
+                    }
+                });
+            });
+
+            // Days of week headers
+            let html = `
+                <div class="calendar-day-header">Dom</div>
+                <div class="calendar-day-header">Seg</div>
+                <div class="calendar-day-header">Ter</div>
+                <div class="calendar-day-header">Qua</div>
+                <div class="calendar-day-header">Qui</div>
+                <div class="calendar-day-header">Sex</div>
+                <div class="calendar-day-header">Sáb</div>
+            `;
+
+            // Calendar days
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const isCurrentMonth = date.getMonth() === month;
+                const isToday = date.getTime() === today.getTime();
+                const dayNumber = date.getDate();
+                
+                // Find cards for this date
+                const dayCards = cardsWithDates.filter(card => {
+                    const cardDate = new Date(card.dueDate);
+                    return cardDate.getFullYear() === date.getFullYear() &&
+                           cardDate.getMonth() === date.getMonth() &&
+                           cardDate.getDate() === date.getDate();
+                });
+
+                let cardsHTML = '';
+                const maxCards = 3;
+                dayCards.slice(0, maxCards).forEach(card => {
+                    const dueDate = new Date(card.dueDate);
+                    const now = new Date();
+                    const diffTime = dueDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let cardClass = '';
+                    if (diffDays < 0) cardClass = 'overdue';
+                    else if (diffDays <= 1) cardClass = 'due-soon';
+                    
+                    cardsHTML += `
+                        <div class="calendar-card ${cardClass}" onclick="openCardModal('${card.id}')">
+                            ${card.title}
+                        </div>
+                    `;
+                });
+
+                if (dayCards.length > maxCards) {
+                    cardsHTML += `
+                        <div class="calendar-more">
+                            +${dayCards.length - maxCards} mais
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}">
+                        <div class="calendar-day-number">${dayNumber}</div>
+                        ${cardsHTML}
+                    </div>
+                `;
+            }
+
+            return html;
         }
 
         // Create list HTML
@@ -2149,8 +2749,6 @@
                 notify.error('Erro ao criar lista');
             }
         }
-
-
 
         async function updateListTitle(listId, newTitle) {
             if (!newTitle.trim()) return;
