@@ -492,7 +492,7 @@ class ApiService {
         }
     }
 
-    // ===========================
+// ===========================
     // Activity Methods
     // ===========================
 
@@ -500,6 +500,56 @@ class ApiService {
         try {
             const response = await fetch(`${this.baseURL}/activities.php?boardId=${boardId}&limit=${limit}`, {
                 method: 'GET',
+                headers: this.setAuthHeader()
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // ===========================
+    // Card Images Methods
+    // ===========================
+
+    async getCardImages(cardId) {
+        try {
+            const response = await fetch(`${this.baseURL}/card-images.php?cardId=${cardId}`, {
+                method: 'GET',
+                headers: this.setAuthHeader()
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async uploadCardImage(cardId, file) {
+        try {
+            const formData = new FormData();
+            formData.append('cardId', cardId);
+            formData.append('image', file);
+
+            const response = await fetch(`${this.baseURL}/card-images.php`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: formData
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteCardImage(imageId) {
+        try {
+            const response = await fetch(`${this.baseURL}/card-images.php?id=${imageId}`, {
+                method: 'DELETE',
                 headers: this.setAuthHeader()
             });
 

@@ -75,7 +75,8 @@ switch($method) {
                 // Get cards for this list
                 $card_query = "SELECT c.*, 
                               GROUP_CONCAT(DISTINCT cl.label) as labels,
-                              GROUP_CONCAT(DISTINCT ct.tag) as tags
+                              GROUP_CONCAT(DISTINCT ct.tag) as tags,
+                              (SELECT COUNT(*) FROM card_images WHERE card_id = c.id) as image_count
                               FROM cards c
                               LEFT JOIN card_labels cl ON c.id = cl.card_id
                               LEFT JOIN card_tags ct ON c.id = ct.card_id
