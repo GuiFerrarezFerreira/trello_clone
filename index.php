@@ -1508,7 +1508,33 @@
                             <input type="text" class="tag-input" id="tagInput" placeholder="Adicionar tag..." onkeydown="handleTagInput(event)">
                         </div>
                     </div>
+
+                    </div>
+                    </div>
+
+                    <div class="images-section">
+                        <h3>📷 Imagens</h3>
+                        <div class="image-upload-area" id="imageUploadArea" onclick="triggerImageUpload()">
+                            <input type="file" id="imageFileInput" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+                            <div class="upload-icon">📸</div>
+                            <div class="upload-text">Clique ou arraste uma imagem aqui</div>
+                            <div class="upload-hint">JPG, PNG, GIF ou WebP (máx. 5MB)</div>
+                        </div>
+                        <div class="upload-progress" id="uploadProgress">
+                            <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                        </div>
+                        <div class="image-gallery" id="imageGallery"></div>
+                    </div>
+
                 </div>
+
+                <!-- Image Preview Modal -->
+                <div class="image-preview-modal" id="imagePreviewModal" onclick="closeImagePreview()">
+                    <div class="image-preview-content" onclick="event.stopPropagation()">
+                        <span class="image-preview-close" onclick="closeImagePreview()">&times;</span>
+                        <img id="previewImage" src="" alt="">
+                    </div>
+                </div>                
             </div>
         </div>
     </div>
@@ -1736,6 +1762,172 @@
             margin-top: 8px;
         }
 
+        /* Image upload styles */
+        .images-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .image-upload-area {
+            border: 2px dashed #dfe1e6;
+            border-radius: 3px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .image-upload-area:hover {
+            border-color: #0079bf;
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .image-upload-area.drag-over {
+            border-color: #0079bf;
+            background: #e4f0f6;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #6b778c;
+        }
+
+        .upload-text {
+            color: #5e6c84;
+            font-size: 14px;
+        }
+
+        .upload-hint {
+            color: #6b778c;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: #f4f5f7;
+            aspect-ratio: 1;
+        }
+
+        .image-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 3px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .image-item:hover .image-item-delete {
+            display: flex;
+        }
+
+        .image-item-delete:hover {
+            background: #eb5a46;
+        }
+
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            cursor: pointer;
+        }
+
+        .image-preview-modal.active {
+            display: flex;
+        }
+
+        .image-preview-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .image-preview-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 4px;
+        }
+
+        .image-preview-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .image-preview-close:hover {
+            color: #ddd;
+        }
+
+        .card-image-indicator {
+            margin-left: 4px;
+            color: #6b778c;
+            font-size: 12px;
+        }
+
+        .upload-progress {
+            width: 100%;
+            height: 4px;
+            background: #e4e6ea;
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+            margin-top: 12px;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .upload-progress-bar {
+            height: 100%;
+            background: #0079bf;
+            width: 0;
+            transition: width 0.3s;
+        }
         .members-selector.active {
             display: block;
         }
@@ -2289,7 +2481,7 @@
             ).join('') : '';
             
             let badgesHTML = '';
-            if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0)) {
+            if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0) || card.hasImages) {
                 badgesHTML = '<div class="card-badges">';
                 
                 if (card.dueDate) {
@@ -2305,6 +2497,11 @@
                     const dateStr = dueDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
                     badgesHTML += `<span class="badge badge-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
                 }
+
+                // Image indicator
+                if (card.hasImages) {
+                    badgesHTML += `<span class="badge">📷 ${card.imageCount || ''}</span>`;
+                }                
                 
                 if (card.members && card.members.length > 0) {
                     badgesHTML += '<div class="card-members">';
@@ -2628,7 +2825,12 @@
                     
                     renderMembersSelector(card);
                     renderTags(card);
-                    
+
+                    document.getElementById('imageUploadArea').style.display = canEdit ? 'block' : 'none';
+
+                    // Load images
+                    await loadCardImages();
+
                     document.getElementById('cardModal').classList.add('active');
                 }
             } catch (error) {
@@ -2968,6 +3170,145 @@
             document.getElementById('tagInput').focus();
         }
 
+        // Image upload functions
+        async function loadCardImages() {
+            try {
+                const response = await apiService.getCardImages(currentCardId);
+                if (response.success) {
+                    renderImageGallery(response.images);
+                }
+            } catch (error) {
+                console.error('Error loading images:', error);
+            }
+        }
+
+        function renderImageGallery(images) {
+            const gallery = document.getElementById('imageGallery');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (images.length === 0) {
+                gallery.innerHTML = '';
+                return;
+            }
+            
+            gallery.innerHTML = images.map(image => `
+                <div class="image-item" onclick="openImagePreview('${image.url}')">
+                    <img src="${image.url}" alt="${image.filename}" loading="lazy">
+                    ${canEdit ? `
+                        <div class="image-item-delete" onclick="confirmDeleteImage(event, ${image.id})" title="Excluir imagem">
+                            ×
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function triggerImageUpload() {
+            document.getElementById('imageFileInput').click();
+        }
+
+        async function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                notify.error('Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP.');
+                return;
+            }
+            
+            // Validate file size (5MB)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                notify.error('Arquivo muito grande. Tamanho máximo: 5MB.');
+                return;
+            }
+            
+            await uploadImage(file);
+            
+            // Clear input
+            event.target.value = '';
+        }
+
+        async function uploadImage(file) {
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressContainer = document.getElementById('uploadProgress');
+            
+            try {
+                // Show progress
+                progressContainer.classList.add('active');
+                progressBar.style.width = '0%';
+                
+                // Simulate progress (since we can't track real upload progress with fetch)
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 90) {
+                        progressBar.style.width = progress + '%';
+                    }
+                }, 100);
+                
+                const response = await apiService.uploadCardImage(currentCardId, file);
+                
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                
+                if (response.success) {
+                    notify.success('Imagem enviada com sucesso!');
+                    await loadCardImages();
+                    await loadCurrentBoard(); // Refresh to show image indicator
+                    
+                    setTimeout(() => {
+                        progressContainer.classList.remove('active');
+                    }, 500);
+                } else {
+                    progressContainer.classList.remove('active');
+                    notify.error(response.message || 'Erro ao enviar imagem');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                progressContainer.classList.remove('active');
+                notify.error('Erro ao enviar imagem');
+            }
+        }
+
+        function confirmDeleteImage(event, imageId) {
+            event.stopPropagation();
+            
+            showConfirmDialog(
+                'Excluir imagem',
+                'Tem certeza que deseja excluir esta imagem?',
+                () => deleteImage(imageId)
+            );
+        }
+
+        async function deleteImage(imageId) {
+            try {
+                const response = await apiService.deleteCardImage(imageId);
+                if (response.success) {
+                    notify.success('Imagem excluída com sucesso!');
+                    hideConfirmDialog();
+                    await loadCardImages();
+                    await loadCurrentBoard(); // Refresh to update image indicator
+                }
+            } catch (error) {
+                console.error('Error deleting image:', error);
+                notify.error('Erro ao excluir imagem');
+            }
+        }
+
+        function openImagePreview(imageUrl) {
+            document.getElementById('previewImage').src = imageUrl;
+            document.getElementById('imagePreviewModal').classList.add('active');
+        }
+
+        function closeImagePreview() {
+            document.getElementById('imagePreviewModal').classList.remove('active');
+            document.getElementById('previewImage').src = '';
+        }        
+
         // Search users with debounce
         let searchTimeout;
         async function searchUsers(query) {
@@ -3131,6 +3472,37 @@
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
+            
+            // Setup drag and drop for images
+            const imageUploadArea = document.getElementById('imageUploadArea');
+            
+            imageUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                imageUploadArea.classList.add('drag-over');
+            });
+            
+            imageUploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                imageUploadArea.classList.remove('drag-over');
+            });
+            
+            imageUploadArea.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                imageUploadArea.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        await handleImageSelect({ target: { files: [file] } });
+                    } else {
+                        notify.error('Por favor, envie apenas imagens.');
+                    }
+                }
+            });
         });
     </script>
 </body>
