@@ -4,9 +4,9 @@
 // ===================================
 class Database {
     private $host = "localhost";
-    //private $db_name = "u987436224_trello_clone";
-    //private $username = "u987436224_trello_clone";
-    //private $password = "ufsCGE!Al>5Z";
+    //private $db_name = "u987436224_dashboard";
+    //private $username = "u987436224_dashboard";
+    //private $password = "$C4^RTk$Vtnk";
     private $db_name = "trello_clone";
     private $username = "root";
     private $password = "";    
