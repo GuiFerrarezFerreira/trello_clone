@@ -13,9 +13,11 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #0079bf 0%, #026aa7 100%);
+            background: #f4f5f7;
             min-height: 100vh;
             color: #172b4d;
+            display: flex;
+            overflow: hidden;
         }
 
         /* Loading Screen */
@@ -79,13 +81,205 @@
             100% { transform: rotate(360deg); }
         }
 
-        .navbar {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 10px 20px;
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -260px;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e4e6ea;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            backdrop-filter: blur(5px);
+            background: #026aa7;
+            color: white;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo .logo {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #0079bf;
+        }
+
+        .sidebar-logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .sidebar-toggle {
+            width: 32px;
+            height: 32px;
+            border-radius: 3px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .boards-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 8px;
+        }
+
+        .boards-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5e6c84;
+            padding: 0 8px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .board-item {
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .board-item:hover {
+            background: #091e420a;
+        }
+
+        .board-item.active {
+            background: #e4f0f6;
+            color: #0079bf;
+        }
+
+        .board-item:hover .board-delete {
+            opacity: 1;
+        }
+
+        .board-delete {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+            background: transparent;
+            color: #6b778c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .board-delete:hover {
+            background: #eb5a46;
+            color: white;
+        }
+
+        .board-item-color {
+            width: 32px;
+            height: 24px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .board-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .board-item-title {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .board-item-details {
+            font-size: 11px;
+            color: #6b778c;
+            margin-top: 2px;
+        }
+
+        .create-board-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            width: calc(100% - 16px);
+            margin: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #6b778c;
+            font-size: 14px;
+            text-align: left;
+            border-radius: 3px;
+            transition: all 0.2s;
+            border: 1px dashed #dfe1e6;
+        }
+
+        .create-board-btn:hover {
+            background: #091e420a;
+            color: #172b4d;
+            border-color: #c1c7d0;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #026aa7;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
         }
 
         .navbar-left {
@@ -102,6 +296,26 @@
             font-size: 14px;
         }
 
+        .toggle-sidebar-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .toggle-sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .admin-link {
             color: white;
             text-decoration: none;
@@ -110,12 +324,12 @@
             background: rgba(255, 255, 255, 0.2);
             transition: all 0.2s;
             font-size: 14px;
-            margin-right: 12px;
         }
 
         .admin-link:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+
         .current-user {
             display: flex;
             align-items: center;
@@ -125,7 +339,7 @@
             border-radius: 3px;
             cursor: pointer;
             transition: all 0.2s;
-        } 
+        }
 
         .current-user:hover {
             background: rgba(255, 255, 255, 0.3);
@@ -158,272 +372,15 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .navbar h1 {
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar .logo {
-            width: 30px;
-            height: 30px;
-            background: white;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #0079bf;
-        }
-
-        .boards-menu-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .boards-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .boards-menu {
-            position: absolute;
-            top: 60px;
-            left: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px -4px rgba(9, 30, 66, 0.25);
-            width: 320px;
-            max-height: 80vh;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-        }
-
-        .boards-menu.active {
-            display: block;
-        }
-
-        .boards-menu-header {
-            padding: 16px;
-            border-bottom: 1px solid #e4e6ea;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .boards-menu-close {
-            cursor: pointer;
-            font-size: 20px;
-            color: #6b778c;
-            padding: 4px;
-            border-radius: 3px;
-            transition: all 0.2s;
-        }
-
-        .boards-menu-close:hover {
-            background: #f4f5f7;
-            color: #172b4d;
-        }
-
-        .boards-list {
-            padding: 8px;
-        }
-
-        .board-item {
-            padding: 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.2s;
-            margin-bottom: 4px;
-            position: relative;
-        }
-
-        .board-item:hover {
-            background: #f4f5f7;
-        }
-
-        .board-item:hover .board-delete {
-            opacity: 1;
-        }
-
-        .board-item.active {
-            background: #e4f0f6;
-            color: #0079bf;
-        }
-
-        .board-delete {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 28px;
-            height: 28px;
-            border-radius: 3px;
-            background: rgba(0, 0, 0, 0.1);
-            color: #6b778c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            opacity: 0;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .board-delete:hover {
-            background: #eb5a46;
-            color: white;
-        }
-
-        .board-item-color {
-            width: 40px;
-            height: 32px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
-
-        .board-item-info {
+        /* Board Content Area */
+        .board-content {
             flex: 1;
-        }
-
-        .board-item-title {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .board-item-lists {
-            font-size: 12px;
-            color: #6b778c;
-        }
-
-        .create-board-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            width: 100%;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            color: #5e6c84;
-            font-size: 14px;
-            text-align: left;
-            border-radius: 3px;
-            transition: all 0.2s;
-        }
-
-        .create-board-btn:hover {
-            background: #f4f5f7;
-            color: #172b4d;
-        }
-
-        .create-board-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .create-board-modal.active {
-            display: flex;
-        }
-
-        .create-board-content {
-            background: white;
-            border-radius: 8px;
-            width: 400px;
-            padding: 24px;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        .create-board-header {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #5e6c84;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 2px solid #dfe1e6;
-            border-radius: 3px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #0079bf;
-        }
-
-        .color-options {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-
-        .color-option {
-            height: 48px;
-            border-radius: 3px;
-            cursor: pointer;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0079bf 0%, #026aa7 100%);
             position: relative;
-            transition: transform 0.2s;
         }
 
-        .color-option:hover {
-            transform: scale(1.05);
-        }
-
-        .color-option.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
+        /* Board Header */
         .board-header {
             padding: 20px;
             color: white;
@@ -438,10 +395,46 @@
             gap: 20px;
         }
 
+        .board-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .board-title:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .member-role {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-admin {
+            background: #ff991a;
+            color: white;
+        }
+
+        .role-editor {
+            background: #4bbf6b;
+            color: white;
+        }
+
+        .role-reader {
+            background: #b3d4ff;
+            color: #0052cc;
+        }
+
         .board-header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         /* View Switcher */
@@ -449,14 +442,16 @@
             display: flex;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 3px;
-            overflow: hidden;
+            padding: 4px;
+            gap: 4px;
         }
 
         .view-btn {
-            padding: 8px 16px;
             background: transparent;
+            color: rgba(255, 255, 255, 0.8);
             border: none;
-            color: white;
+            padding: 8px 16px;
+            border-radius: 3px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
@@ -467,11 +462,13 @@
         }
 
         .view-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
         .view-btn.active {
             background: rgba(255, 255, 255, 0.3);
+            color: white;
         }
 
         .board-members {
@@ -526,224 +523,23 @@
             transform: translateY(-2px);
         }
 
-        /* Members Management Modal */
-        .members-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .members-modal.active {
-            display: flex;
-        }
-
-        .members-modal-content {
-            background: white;
-            border-radius: 8px;
-            width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        .members-modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #e4e6ea;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .members-modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #172b4d;
-        }
-
-        .members-modal-body {
-            padding: 20px;
-        }
-
-        .member-row {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-radius: 3px;
-            margin-bottom: 8px;
-            transition: background 0.2s;
-        }
-
-        .member-row:hover {
-            background: #f4f5f7;
-        }
-
-        .member-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .member-details {
-            flex: 1;
-        }
-
-        .member-name {
-            font-weight: 500;
-            color: #172b4d;
-        }
-
-        .member-email {
-            font-size: 12px;
-            color: #6b778c;
-        }
-
-        .member-role {
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-right: 8px;
-        }
-
-        .role-admin {
-            background: #ff991a;
-            color: white;
-        }
-
-        .role-editor {
-            background: #4bbf6b;
-            color: white;
-        }
-
-        .role-reader {
-            background: #b3d4ff;
-            color: #0052cc;
-        }
-
-        .role-selector {
-            padding: 4px 8px;
-            border: 1px solid #dfe1e6;
-            border-radius: 3px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-right: 8px;
-        }
-
-        .remove-member-btn {
-            padding: 4px 8px;
-            background: transparent;
-            border: 1px solid #eb5a46;
-            color: #eb5a46;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .remove-member-btn:hover {
-            background: #eb5a46;
-            color: white;
-        }
-
-        .add-member-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e4e6ea;
-        }
-
-        .add-member-form {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .member-select {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #dfe1e6;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-
-        .user-search-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #dfe1e6;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-
-        .user-search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #dfe1e6;
-            border-radius: 3px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            z-index: 10;
-        }
-
-        .user-search-results.active {
-            display: block;
-        }
-
-        .user-result-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .user-result-item:hover {
-            background: #f4f5f7;
-        }
-
-        .no-access-message {
-            text-align: center;
-            padding: 40px;
-            color: #5e6c84;
-        }
-
-        .no-access-message h2 {
-            color: #172b4d;
-            margin-bottom: 12px;
-        }
-
-        .board-title {
-            font-size: 18px;
-            font-weight: 700;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .board-title:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Kanban View (default) */
+        /* Board Container - Kanban View */
         .board-container {
             padding: 0 20px 20px;
             display: flex;
             gap: 12px;
             overflow-x: auto;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 140px);
             align-items: flex-start;
         }
 
+        .board-container.table-view,
+        .board-container.calendar-view {
+            display: block;
+            padding: 20px;
+        }
+
+        /* Kanban specific styles */
         .list {
             background: #ebecf0;
             border-radius: 3px;
@@ -1129,24 +925,22 @@
             border-color: #026aa7;
         }
 
-        /* Table View */
-        .table-view-container {
-            padding: 20px;
-            height: calc(100vh - 120px);
-            overflow-y: auto;
-        }
-
-        .cards-table {
-            width: 100%;
+        /* Table View Styles */
+        .table-container {
             background: white;
             border-radius: 8px;
-            overflow: hidden;
             box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
+            overflow: hidden;
         }
 
-        .cards-table th {
+        .table-view table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-view th {
             background: #f4f5f7;
-            padding: 12px 16px;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
             font-size: 12px;
@@ -1158,13 +952,13 @@
             z-index: 10;
         }
 
-        .cards-table td {
-            padding: 16px;
+        .table-view td {
+            padding: 12px;
             border-bottom: 1px solid #e4e6ea;
             vertical-align: top;
         }
 
-        .cards-table tr:hover {
+        .table-view tr:hover {
             background: #f4f5f7;
         }
 
@@ -1172,9 +966,6 @@
             font-weight: 500;
             color: #172b4d;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .table-card-title:hover {
@@ -1182,131 +973,24 @@
             text-decoration: underline;
         }
 
-        .table-list-name {
-            background: #e4e6ea;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            display: inline-block;
-        }
-
-        .table-members {
-            display: flex;
-            gap: 4px;
-        }
-
-        .table-member-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 600;
-            color: white;
-        }
-
-        .table-due-date {
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 3px;
-            background: #f4f5f7;
-            display: inline-block;
-        }
-
-        .table-due-date.overdue {
-            background: #eb5a46;
-            color: white;
-        }
-
-        .table-due-date.due-soon {
-            background: #f2d600;
-            color: #172b4d;
-        }
-
-        .table-tags {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .cards-table tr:hover .table-actions {
-            opacity: 1;
-        }
-
-        .table-action-btn {
-            padding: 4px 8px;
-            border: none;
-            background: transparent;
-            color: #6b778c;
-            cursor: pointer;
-            border-radius: 3px;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .table-action-btn:hover {
-            background: #e4e6ea;
-            color: #172b4d;
-        }
-
-        .table-action-btn.delete:hover {
-            background: #eb5a46;
-            color: white;
-        }
-
-        /* Calendar View */
-        .calendar-view-container {
+        /* Calendar View Styles */
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
             padding: 20px;
-            height: calc(100vh - 120px);
-            overflow-y: auto;
         }
 
         .calendar-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
         }
 
         .calendar-nav {
             display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .calendar-nav-btn {
-            padding: 8px 12px;
-            background: transparent;
-            border: 1px solid #dfe1e6;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            color: #172b4d;
-        }
-
-        .calendar-nav-btn:hover {
-            background: #f4f5f7;
-            border-color: #c1c7d0;
-        }
-
-        .calendar-current-month {
-            font-size: 20px;
-            font-weight: 600;
-            color: #172b4d;
+            gap: 8px;
         }
 
         .calendar-grid {
@@ -1314,89 +998,63 @@
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
             background: #e4e6ea;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
+            border: 1px solid #e4e6ea;
         }
 
         .calendar-day-header {
             background: #f4f5f7;
-            padding: 12px 8px;
+            padding: 8px;
             text-align: center;
             font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
+            font-size: 14px;
             color: #5e6c84;
         }
 
         .calendar-day {
             background: white;
-            min-height: 120px;
+            min-height: 100px;
             padding: 8px;
-            position: relative;
+            font-size: 14px;
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .calendar-day.other-month {
-            background: #fafbfc;
+            background: #f4f5f7;
+            color: #6b778c;
         }
 
         .calendar-day.today {
             background: #e4f0f6;
         }
 
-        .calendar-day-number {
-            font-weight: 600;
-            color: #172b4d;
-            margin-bottom: 8px;
-        }
-
-        .calendar-day.other-month .calendar-day-number {
-            color: #6b778c;
-        }
-
-        .calendar-card {
-            background: #0079bf;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
             color: white;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            margin-bottom: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        .calendar-card:hover {
-            transform: translateX(2px);
-            box-shadow: 0 1px 4px rgba(9, 30, 66, 0.2);
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
         }
 
-        .calendar-card.overdue {
-            background: #eb5a46;
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 20px;
         }
 
-        .calendar-card.due-soon {
-            background: #f2d600;
-            color: #172b4d;
+        .empty-state .btn-primary {
+            font-size: 16px;
+            padding: 10px 20px;
         }
 
-        .calendar-more {
-            font-size: 11px;
-            color: #5e6c84;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-
-        .calendar-more:hover {
-            color: #172b4d;
-            text-decoration: underline;
-        }
-
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -1463,6 +1121,523 @@
             color: #172b4d;
         }
 
+        /* Create Board Modal */
+        .create-board-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .create-board-modal.active {
+            display: flex;
+        }
+
+        .create-board-content {
+            background: white;
+            border-radius: 8px;
+            width: 400px;
+            padding: 24px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .create-board-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5e6c84;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0079bf;
+        }
+
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .color-option {
+            height: 48px;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.05);
+        }
+
+        .color-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Members Modal */
+        .members-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .members-modal.active {
+            display: flex;
+        }
+
+        .members-modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .members-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e4e6ea;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .members-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #172b4d;
+        }
+
+        .members-modal-body {
+            padding: 20px;
+        }
+
+        /* Confirm Dialog */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .confirm-dialog.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 400px;
+            animation: slideUp 0.2s ease-out;
+        }
+
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #172b4d;
+        }
+
+        .confirm-message {
+            font-size: 14px;
+            color: #5e6c84;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-danger {
+            background: #eb5a46;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #cf513d;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                z-index: 200;
+            }
+
+            .sidebar.collapsed {
+                margin-left: -260px;
+            }
+
+            .view-switcher {
+                display: none;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-sidebar {
+                padding-top: 0;
+                border-top: 1px solid #e4e6ea;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">T</div>
+            <h2>Carregando...</h2>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="logo">T</div>
+                <h1>Trello Clone</h1>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                ←
+            </button>
+        </div>
+        <div class="boards-section">
+            <div class="boards-section-title">
+                📋 SEUS QUADROS
+            </div>
+            <div id="boardsList"></div>
+        </div>
+        <button class="create-board-btn" onclick="showCreateBoardModal()">
+            + Criar novo quadro
+        </button>
+    </aside>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-left">
+                <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+                    ☰
+                </button>
+            </div>
+            <div class="navbar-right">
+                <a href="admin.php" class="admin-link" id="adminLink" style="display: none;">
+                    ⚙️ Administração
+                </a>
+                <div class="current-user">
+                    <div class="user-avatar-small" id="userAvatar"></div>
+                    <span id="userName"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Sair</button>
+            </div>
+        </nav>
+
+        <!-- Board Content Area -->
+        <div class="board-content" id="boardContent"></div>
+    </div>
+
+    <!-- Create Board Modal -->
+    <div class="create-board-modal" id="createBoardModal">
+        <div class="create-board-content">
+            <div class="create-board-header">
+                <span>Criar Quadro</span>
+                <span class="modal-close" onclick="hideCreateBoardModal()">×</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Título do Quadro</label>
+                <input type="text" class="form-input" id="newBoardTitle" placeholder="Digite o título do quadro..." autofocus>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cor do Fundo</label>
+                <div class="color-options" id="colorOptions">
+                    <div class="color-option selected" data-color="#0079bf" style="background: #0079bf"></div>
+                    <div class="color-option" data-color="#d29034" style="background: #d29034"></div>
+                    <div class="color-option" data-color="#519839" style="background: #519839"></div>
+                    <div class="color-option" data-color="#b04632" style="background: #b04632"></div>
+                    <div class="color-option" data-color="#89609e" style="background: #89609e"></div>
+                    <div class="color-option" data-color="#cd5a91" style="background: #cd5a91"></div>
+                    <div class="color-option" data-color="#4bbf6b" style="background: #4bbf6b"></div>
+                    <div class="color-option" data-color="#00aecc" style="background: #00aecc"></div>
+                    <div class="color-option" data-color="#838c91" style="background: #838c91"></div>
+                    <div class="color-option" data-color="#172b4d" style="background: #172b4d"></div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="createBoard()">Criar Quadro</button>
+        </div>
+    </div>
+
+    <!-- Members Management Modal -->
+    <div class="members-modal" id="membersModal">
+        <div class="members-modal-content">
+            <div class="members-modal-header">
+                <h2 class="members-modal-title">Gerenciar Membros do Quadro</h2>
+                <span class="modal-close" onclick="closeMembersModal()">×</span>
+            </div>
+            <div class="members-modal-body" id="membersModalBody">
+                <!-- Members list will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-dialog" id="confirmDialog">
+        <div class="confirm-content">
+            <div class="confirm-title" id="confirmTitle">Confirmar exclusão</div>
+            <div class="confirm-message" id="confirmMessage">Tem certeza que deseja excluir?</div>
+            <div class="confirm-buttons">
+                <button class="btn btn-cancel" onclick="hideConfirmDialog()">Cancelar</button>
+                <button class="btn btn-danger" id="confirmButton">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Detail Modal -->
+    <div class="modal" id="cardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <div class="card-detail-title" id="modalCardTitle" contenteditable="true">Título do cartão</div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-main">
+                    <div class="card-section">
+                        <h3>Descrição</h3>
+                        <textarea class="description-input" id="cardDescription" placeholder="Adicione uma descrição mais detalhada..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-sidebar">
+                    <div class="sidebar-section">
+                        <h4>Adicionar ao cartão</h4>
+                        <button class="sidebar-button" onclick="toggleMembersSelector()">
+                            👤 Membros
+                        </button>
+                        <div class="members-selector" id="membersSelector"></div>
+                        <div class="assigned-members" id="assignedMembers"></div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h4>Data de término</h4>
+                        <input type="datetime-local" class="date-input" id="dueDateInput" onchange="updateDueDate()">
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h4>Tags</h4>
+                        <div class="tags-input-container" onclick="focusTagInput()">
+                            <div id="tagsList"></div>
+                            <input type="text" class="tag-input" id="tagInput" placeholder="Adicionar tag..." onkeydown="handleTagInput(event)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional styles for specific components -->
+    <style>
+        /* Additional member management styles */
+        .member-row {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 3px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .member-row:hover {
+            background: #f4f5f7;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .member-details {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 500;
+            color: #172b4d;
+        }
+
+        .member-email {
+            font-size: 12px;
+            color: #6b778c;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .role-selector {
+            padding: 4px 8px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .remove-member-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px solid #eb5a46;
+            color: #eb5a46;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-member-btn:hover {
+            background: #eb5a46;
+            color: white;
+        }
+
+        .add-member-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .add-member-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .user-search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .user-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-top: 4px;
+        }
+
+        .user-search-results.active {
+            display: block;
+        }
+
+        .user-result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-result-item:hover {
+            background: #f4f5f7;
+        }
+
+        /* Card detail styles */
         .modal-body {
             padding: 0 20px 20px;
             display: grid;
@@ -1694,294 +1869,6 @@
         .assigned-member:hover .remove-member {
             display: flex;
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-        }
-
-        .empty-state h2 {
-            font-size: 24px;
-            margin-bottom: 12px;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-
-        .empty-state .btn-primary {
-            font-size: 16px;
-            padding: 10px 20px;
-        }
-
-        /* Confirm dialog */
-        .confirm-dialog {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-        }
-
-        .confirm-dialog.active {
-            display: flex;
-        }
-
-        .confirm-content {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            max-width: 400px;
-            animation: slideUp 0.2s ease-out;
-        }
-
-        .confirm-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #172b4d;
-        }
-
-        .confirm-message {
-            font-size: 14px;
-            color: #5e6c84;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .confirm-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .btn-danger {
-            background: #eb5a46;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #cf513d;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        /* Error state */
-        .error-message {
-            background: #ffeae8;
-            color: #c9372c;
-            padding: 12px;
-            border-radius: 4px;
-            margin: 20px;
-            text-align: center;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .modal-body {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-sidebar {
-                padding-top: 0;
-                border-top: 1px solid #e4e6ea;
-                margin-top: 20px;
-            }
-            
-            .view-switcher {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-content">
-            <div class="loading-logo">T</div>
-            <h2>Carregando...</h2>
-            <div class="loading-spinner"></div>
-        </div>
-    </div>
-
-    <nav class="navbar">
-        <div class="navbar-left">
-            <h1>
-                <div class="logo">T</div>
-                Trello Clone
-            </h1>
-            <button class="boards-menu-btn" onclick="toggleBoardsMenu()">
-                📋 Quadros
-                <span>▼</span>
-            </button>
-        </div>
-        <div class="navbar-right">
-            <a href="admin.php" class="admin-link" id="adminLink" style="display: none;">
-                ⚙️ Administração
-            </a>
-            <div class="current-user">
-                <div class="user-avatar-small" id="userAvatar"></div>
-                <span id="userName"></span>
-            </div>
-            <button class="logout-btn" onclick="logout()">Sair</button>
-        </div>
-    </nav>
-
-    <div class="boards-menu" id="boardsMenu">
-        <div class="boards-menu-header">
-            <span>Seus Quadros</span>
-            <span class="boards-menu-close" onclick="toggleBoardsMenu()">×</span>
-        </div>
-        <div class="boards-list" id="boardsList"></div>
-        <button class="create-board-btn" onclick="showCreateBoardModal()">
-            + Criar novo quadro
-        </button>
-    </div>
-
-    <div class="create-board-modal" id="createBoardModal">
-        <div class="create-board-content">
-            <div class="create-board-header">
-                <span>Criar Quadro</span>
-                <span class="boards-menu-close" onclick="hideCreateBoardModal()">×</span>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Título do Quadro</label>
-                <input type="text" class="form-input" id="newBoardTitle" placeholder="Digite o título do quadro..." autofocus>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Cor do Fundo</label>
-                <div class="color-options" id="colorOptions">
-                    <div class="color-option selected" data-color="#0079bf" style="background: #0079bf"></div>
-                    <div class="color-option" data-color="#d29034" style="background: #d29034"></div>
-                    <div class="color-option" data-color="#519839" style="background: #519839"></div>
-                    <div class="color-option" data-color="#b04632" style="background: #b04632"></div>
-                    <div class="color-option" data-color="#89609e" style="background: #89609e"></div>
-                    <div class="color-option" data-color="#cd5a91" style="background: #cd5a91"></div>
-                    <div class="color-option" data-color="#4bbf6b" style="background: #4bbf6b"></div>
-                    <div class="color-option" data-color="#00aecc" style="background: #00aecc"></div>
-                    <div class="color-option" data-color="#838c91" style="background: #838c91"></div>
-                    <div class="color-option" data-color="#172b4d" style="background: #172b4d"></div>
-                </div>
-            </div>
-            <button class="btn btn-primary" onclick="createBoard()">Criar Quadro</button>
-        </div>
-    </div>
-
-    <div id="boardContent"></div>
-
-    <!-- Members Management Modal -->
-    <div class="members-modal" id="membersModal">
-        <div class="members-modal-content">
-            <div class="members-modal-header">
-                <h2 class="members-modal-title">Gerenciar Membros do Quadro</h2>
-                <span class="modal-close" onclick="closeMembersModal()">×</span>
-            </div>
-            <div class="members-modal-body" id="membersModalBody">
-                <!-- Members list will be rendered here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Dialog -->
-    <div class="confirm-dialog" id="confirmDialog">
-        <div class="confirm-content">
-            <div class="confirm-title" id="confirmTitle">Confirmar exclusão</div>
-            <div class="confirm-message" id="confirmMessage">Tem certeza que deseja excluir?</div>
-            <div class="confirm-buttons">
-                <button class="btn btn-cancel" onclick="hideConfirmDialog()">Cancelar</button>
-                <button class="btn btn-danger" id="confirmButton">Excluir</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="cardModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-close" onclick="closeModal()">&times;</span>
-                <div class="card-detail-title" id="modalCardTitle" contenteditable="true">Título do cartão</div>
-            </div>
-            <div class="modal-body">
-                <div class="modal-main">
-                    <div class="card-section">
-                        <h3>Descrição</h3>
-                        <textarea class="description-input" id="cardDescription" placeholder="Adicione uma descrição mais detalhada..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-sidebar">
-                    <div class="sidebar-section">
-                        <h4>Adicionar ao cartão</h4>
-                        <button class="sidebar-button" onclick="toggleMembersSelector()">
-                            👤 Membros
-                        </button>
-                        <div class="members-selector" id="membersSelector"></div>
-                        <div class="assigned-members" id="assignedMembers"></div>
-                    </div>
-                    
-                    <div class="sidebar-section">
-                        <h4>Data de término</h4>
-                        <input type="datetime-local" class="date-input" id="dueDateInput" onchange="updateDueDate()">
-                    </div>
-                    
-                    <div class="sidebar-section">
-                        <h4>Tags</h4>
-                        <div class="tags-input-container" onclick="focusTagInput()">
-                            <div id="tagsList"></div>
-                            <input type="text" class="tag-input" id="tagInput" placeholder="Adicionar tag..." onkeydown="handleTagInput(event)">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Adicionando CSS para animações de notificação -->
-    <style>
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
     </style>
 
     <script src="js/services/api.service.js"></script>
@@ -1994,46 +1881,38 @@
             currentBoardId: null,
             currentBoard: null,
             boards: [],
-            users: [],
+            currentView: 'kanban',
             draggedCard: null,
             sourceListId: null,
-            currentUser: null,
-            currentView: 'kanban' // Default view
+            currentUser: null
         };
 
         // Initialize app
         async function initializeApp() {
             try {
-                // Verifica se tem token
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     window.location.href = 'login.php';
                     return;
                 }
 
-                // Valida o token e obtém informações do usuário
                 const user = await apiService.validateToken();
                 if (!user) {
                     apiService.logout();
                     return;
                 }
 
-                // Atualiza o estado com as informações do usuário
                 appState.currentUser = user;
                 appState.currentUserId = user.id;
 
-                // Atualiza a UI com as informações do usuário
                 updateUserUI(user);
 
-                // Show admin link if user is system admin
                 if (user.isAdmin) {
                     document.getElementById('adminLink').style.display = 'inline-block';
                 }
                 
-                // Carrega os boards
                 await loadBoards();
 
-                // Hide loading screen
                 hideLoadingScreen();
             } catch (error) {
                 console.error('Initialization error:', error);
@@ -2042,7 +1921,6 @@
             }
         }
 
-        // Atualiza a UI com as informações do usuário
         function updateUserUI(user) {
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
@@ -2054,6 +1932,25 @@
             }
         }
 
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // Switch view
+        function switchView(view) {
+            appState.currentView = view;
+            
+            // Update view buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderCurrentBoard();
+        }
+
         // Load boards
         async function loadBoards() {
             try {
@@ -2062,7 +1959,6 @@
                     appState.boards = response.boards;
                     renderBoardsList();
                     
-                    // Select first board if exists
                     if (appState.boards.length > 0 && !appState.currentBoardId) {
                         await switchBoard(appState.boards[0].id);
                     } else if (appState.currentBoardId) {
@@ -2075,6 +1971,39 @@
                 console.error('Error loading boards:', error);
                 notify.error('Erro ao carregar quadros');
             }
+        }
+
+        // Render boards list
+        function renderBoardsList() {
+            const boardsList = document.getElementById('boardsList');
+            
+            boardsList.innerHTML = appState.boards.map(board => {
+                const isActive = board.id === appState.currentBoardId;
+                const canDelete = board.role === 'admin';
+                
+                return `
+                    <div class="board-item ${isActive ? 'active' : ''}" onclick="switchBoard('${board.id}')">
+                        <div class="board-item-color" style="background: ${board.color}"></div>
+                        <div class="board-item-info">
+                            <div class="board-item-title">${board.title}</div>
+                            <div class="board-item-details">${board.listCount || 0} listas · ${board.cardCount || 0} cartões</div>
+                        </div>
+                        ${canDelete ? `
+                            <div class="board-delete" onclick="confirmDeleteBoard(event, '${board.id}')" title="Excluir quadro">
+                                🗑️
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Switch board
+        async function switchBoard(boardId) {
+            appState.currentBoardId = boardId;
+            appState.currentView = 'kanban'; // Reset to default view
+            renderBoardsList();
+            await loadCurrentBoard();
         }
 
         // Load current board
@@ -2101,73 +2030,7 @@
             }
         }
 
-        // Switch board
-        async function switchBoard(boardId) {
-            appState.currentBoardId = boardId;
-            appState.currentView = 'kanban'; // Reset to default view
-            renderBoardsList();
-            await loadCurrentBoard();
-            toggleBoardsMenu();
-        }
-
-        // Toggle boards menu
-        function toggleBoardsMenu() {
-            document.getElementById('boardsMenu').classList.toggle('active');
-        }
-
-        // Show/hide loading screen
-        function showLoadingScreen() {
-            document.getElementById('loadingScreen').classList.remove('hide');
-        }
-
-        function hideLoadingScreen() {
-            document.getElementById('loadingScreen').classList.add('hide');
-        }
-
-        // Switch view
-        function switchView(view) {
-            appState.currentView = view;
-            renderCurrentBoard();
-        }
-
-        // Render boards list
-        function renderBoardsList() {
-            const boardsList = document.getElementById('boardsList');
-            
-            boardsList.innerHTML = appState.boards.map(board => {
-                const isActive = board.id === appState.currentBoardId;
-                const canDelete = board.role === 'admin';
-                
-                return `
-                    <div class="board-item ${isActive ? 'active' : ''}" onclick="switchBoard('${board.id}')">
-                        <div class="board-item-color" style="background: ${board.color}"></div>
-                        <div class="board-item-info">
-                            <div class="board-item-title">${board.title}</div>
-                            <div class="board-item-lists">${board.listCount || 0} listas · ${board.cardCount || 0} cartões · ${board.role}</div>
-                        </div>
-                        ${canDelete ? `
-                            <div class="board-delete" onclick="confirmDeleteBoard(event, '${board.id}')" title="Excluir quadro">
-                                🗑️
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Render empty state
-        function renderEmptyState() {
-            const boardContent = document.getElementById('boardContent');
-            boardContent.innerHTML = `
-                <div class="empty-state">
-                    <h2>Nenhum quadro selecionado</h2>
-                    <p>Crie um novo quadro para começar</p>
-                    <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
-                </div>
-            `;
-        }
-
-        // Render current board
+        // Render current board based on view
         function renderCurrentBoard() {
             const board = appState.currentBoard;
             const boardContent = document.getElementById('boardContent');
@@ -2177,12 +2040,29 @@
                 return;
             }
 
+            // Update background color
+            boardContent.style.background = `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`;
+            
+            // Render based on current view
+            switch (appState.currentView) {
+                case 'kanban':
+                    renderKanbanView(board);
+                    break;
+                case 'table':
+                    renderTableView(board);
+                    break;
+                case 'calendar':
+                    renderCalendarView(board);
+                    break;
+            }
+        }
+
+        // Render Kanban view
+        function renderKanbanView(board) {
+            const boardContent = document.getElementById('boardContent');
             const canEdit = board.role === 'admin' || board.role === 'editor';
             const isAdmin = board.role === 'admin';
 
-            // Update background color
-            document.body.style.background = `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`;
-            
             // Render board members
             const membersHTML = board.members.map(member => `
                 <div class="board-member-avatar" 
@@ -2192,8 +2072,7 @@
                 </div>
             `).join('');
             
-            // Header with view switcher
-            let boardHeaderHTML = `
+            boardContent.innerHTML = `
                 <div class="board-header">
                     <div class="board-header-left">
                         <div class="board-title" ${canEdit ? 'onclick="editBoardTitle()"' : ''}>${board.title}</div>
@@ -2201,16 +2080,13 @@
                     </div>
                     <div class="board-header-right">
                         <div class="view-switcher">
-                            <button class="view-btn ${appState.currentView === 'kanban' ? 'active' : ''}" 
-                                    onclick="switchView('kanban')">
+                            <button class="view-btn active" onclick="switchView('kanban')">
                                 📋 Kanban
                             </button>
-                            <button class="view-btn ${appState.currentView === 'table' ? 'active' : ''}" 
-                                    onclick="switchView('table')">
+                            <button class="view-btn" onclick="switchView('table')">
                                 📊 Tabela
                             </button>
-                            <button class="view-btn ${appState.currentView === 'calendar' ? 'active' : ''}" 
-                                    onclick="switchView('calendar')">
+                            <button class="view-btn" onclick="switchView('calendar')">
                                 📅 Calendário
                             </button>
                         </div>
@@ -2222,27 +2098,6 @@
                         </div>
                     </div>
                 </div>
-            `;
-            
-            // Render based on current view
-            let viewHTML = '';
-            switch (appState.currentView) {
-                case 'table':
-                    viewHTML = renderTableView(board, canEdit);
-                    break;
-                case 'calendar':
-                    viewHTML = renderCalendarView(board, canEdit);
-                    break;
-                default:
-                    viewHTML = renderKanbanView(board, canEdit);
-            }
-            
-            boardContent.innerHTML = boardHeaderHTML + viewHTML;
-        }
-
-        // Render Kanban View
-        function renderKanbanView(board, canEdit) {
-            return `
                 <div class="board-container" id="board">
                     ${board.lists.map(list => createListHTML(list, canEdit)).join('')}
                     ${canEdit ? `
@@ -2261,258 +2116,138 @@
             `;
         }
 
-        // Render Table View
-        function renderTableView(board, canEdit) {
+        // Render Table view
+        function renderTableView(board) {
+            const boardContent = document.getElementById('boardContent');
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+
             // Collect all cards from all lists
             const allCards = [];
             board.lists.forEach(list => {
                 list.cards.forEach(card => {
                     allCards.push({
                         ...card,
-                        listName: list.title,
-                        listId: list.id
+                        listTitle: list.title
                     });
                 });
             });
 
-            // Sort cards by due date
-            allCards.sort((a, b) => {
-                if (!a.dueDate && !b.dueDate) return 0;
-                if (!a.dueDate) return 1;
-                if (!b.dueDate) return -1;
-                return new Date(a.dueDate) - new Date(b.dueDate);
-            });
-
-            return `
-                <div class="table-view-container">
-                    <table class="cards-table">
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Lista</th>
-                                <th>Membros</th>
-                                <th>Data de Vencimento</th>
-                                <th>Tags</th>
-                                ${canEdit ? '<th>Ações</th>' : ''}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allCards.map(card => renderTableRow(card, canEdit)).join('')}
-                        </tbody>
-                    </table>
-                    ${allCards.length === 0 ? `
-                        <div style="text-align: center; padding: 40px; color: #5e6c84;">
-                            <h3>Nenhum cartão encontrado</h3>
-                            <p>Crie cartões nas listas para vê-los aqui</p>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // Render table row
-        function renderTableRow(card, canEdit) {
-            // Due date formatting
-            let dueDateHTML = '-';
-            if (card.dueDate) {
-                const dueDate = new Date(card.dueDate);
-                const now = new Date();
-                const diffTime = dueDate - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                let dueDateClass = '';
-                if (diffDays < 0) dueDateClass = 'overdue';
-                else if (diffDays <= 1) dueDateClass = 'due-soon';
-                
-                const dateStr = dueDate.toLocaleDateString('pt-BR');
-                dueDateHTML = `<span class="table-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
-            }
-
-            // Members
-            let membersHTML = '-';
-            if (card.members && card.members.length > 0) {
-                membersHTML = '<div class="table-members">' +
-                    card.members.map(member => `
-                        <div class="table-member-avatar" 
-                             style="background-color: ${member.color}" 
-                             title="${member.name}">
-                            ${member.initials}
-                        </div>
-                    `).join('') +
-                '</div>';
-            }
-
-            // Tags
-            let tagsHTML = '-';
-            if (card.tags && card.tags.length > 0) {
-                tagsHTML = '<div class="table-tags">' +
-                    card.tags.map(tag => `<span class="tag">#${tag}</span>`).join('') +
-                '</div>';
-            }
-
-            return `
-                <tr>
-                    <td>
-                        <div class="table-card-title" onclick="openCardModal('${card.id}')">
-                            ${card.title}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="table-list-name">${card.listName}</span>
-                    </td>
-                    <td>${membersHTML}</td>
-                    <td>${dueDateHTML}</td>
-                    <td>${tagsHTML}</td>
-                    ${canEdit ? `
-                        <td>
-                            <div class="table-actions">
-                                <button class="table-action-btn" onclick="openCardModal('${card.id}')">
-                                    ✏️ Editar
-                                </button>
-                                <button class="table-action-btn delete" onclick="deleteCard(event, '${card.id}')">
-                                    🗑️ Excluir
-                                </button>
-                            </div>
-                        </td>
-                    ` : ''}
-                </tr>
-            `;
-        }
-
-        // Render Calendar View
-        function renderCalendarView(board, canEdit) {
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            
-            return `
-                <div class="calendar-view-container">
-                    <div class="calendar-header">
-                        <div class="calendar-nav">
-                            <button class="calendar-nav-btn" onclick="changeMonth(-1)">←</button>
-                            <div class="calendar-current-month" id="currentMonthYear">
-                                ${getMonthName(currentMonth)} ${currentYear}
-                            </div>
-                            <button class="calendar-nav-btn" onclick="changeMonth(1)">→</button>
-                        </div>
-                        <button class="calendar-nav-btn" onclick="goToToday()">Hoje</button>
+            boardContent.innerHTML = `
+                <div class="board-header">
+                    <div class="board-header-left">
+                        <div class="board-title">${board.title}</div>
+                        <span class="member-role role-${board.role}">${board.role}</span>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        ${renderCalendarGrid(currentYear, currentMonth, board)}
+                    <div class="board-header-right">
+                        <div class="view-switcher">
+                            <button class="view-btn" onclick="switchView('kanban')">
+                                📋 Kanban
+                            </button>
+                            <button class="view-btn active" onclick="switchView('table')">
+                                📊 Tabela
+                            </button>
+                            <button class="view-btn" onclick="switchView('calendar')">
+                                📅 Calendário
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="board-container table-view">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Lista</th>
+                                    <th>Membros</th>
+                                    <th>Tags</th>
+                                    <th>Data de Vencimento</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allCards.map(card => `
+                                    <tr>
+                                        <td>
+                                            <div class="table-card-title" onclick="openCardModal('${card.id}')">
+                                                ${card.title}
+                                            </div>
+                                        </td>
+                                        <td>${card.listTitle}</td>
+                                        <td>
+                                            ${card.members ? card.members.map(m => 
+                                                `<span class="member-avatar" style="background: ${m.color}" title="${m.name}">${m.initials}</span>`
+                                            ).join('') : ''}
+                                        </td>
+                                        <td>
+                                            ${card.tags ? card.tags.map(tag => 
+                                                `<span class="tag">#${tag}</span>`
+                                            ).join('') : ''}
+                                        </td>
+                                        <td>${card.dueDate ? new Date(card.dueDate).toLocaleDateString('pt-BR') : '-'}</td>
+                                        <td>
+                                            <button class="btn btn-primary" onclick="openCardModal('${card.id}')">Abrir</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
         }
 
-        // Calendar helpers
-        let calendarDate = new Date();
-
-        function getMonthName(month) {
-            const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            return months[month];
-        }
-
-        function changeMonth(direction) {
-            calendarDate.setMonth(calendarDate.getMonth() + direction);
-            renderCurrentBoard();
-        }
-
-        function goToToday() {
-            calendarDate = new Date();
-            renderCurrentBoard();
-        }
-
-        function renderCalendarGrid(year, month, board) {
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const prevLastDay = new Date(year, month, 0);
-            const startDate = new Date(firstDay);
-            startDate.setDate(1 - firstDay.getDay());
+        // Render Calendar view
+        function renderCalendarView(board) {
+            const boardContent = document.getElementById('boardContent');
             
-            // Collect cards with due dates
-            const cardsWithDates = [];
-            board.lists.forEach(list => {
-                list.cards.forEach(card => {
-                    if (card.dueDate) {
-                        cardsWithDates.push({
-                            ...card,
-                            listName: list.title
-                        });
-                    }
-                });
-            });
-
-            // Days of week headers
-            let html = `
-                <div class="calendar-day-header">Dom</div>
-                <div class="calendar-day-header">Seg</div>
-                <div class="calendar-day-header">Ter</div>
-                <div class="calendar-day-header">Qua</div>
-                <div class="calendar-day-header">Qui</div>
-                <div class="calendar-day-header">Sex</div>
-                <div class="calendar-day-header">Sáb</div>
-            `;
-
-            // Calendar days
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            for (let i = 0; i < 42; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
-                
-                const isCurrentMonth = date.getMonth() === month;
-                const isToday = date.getTime() === today.getTime();
-                const dayNumber = date.getDate();
-                
-                // Find cards for this date
-                const dayCards = cardsWithDates.filter(card => {
-                    const cardDate = new Date(card.dueDate);
-                    return cardDate.getFullYear() === date.getFullYear() &&
-                           cardDate.getMonth() === date.getMonth() &&
-                           cardDate.getDate() === date.getDate();
-                });
-
-                let cardsHTML = '';
-                const maxCards = 3;
-                dayCards.slice(0, maxCards).forEach(card => {
-                    const dueDate = new Date(card.dueDate);
-                    const now = new Date();
-                    const diffTime = dueDate - now;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
-                    let cardClass = '';
-                    if (diffDays < 0) cardClass = 'overdue';
-                    else if (diffDays <= 1) cardClass = 'due-soon';
-                    
-                    cardsHTML += `
-                        <div class="calendar-card ${cardClass}" onclick="openCardModal('${card.id}')">
-                            ${card.title}
-                        </div>
-                    `;
-                });
-
-                if (dayCards.length > maxCards) {
-                    cardsHTML += `
-                        <div class="calendar-more">
-                            +${dayCards.length - maxCards} mais
-                        </div>
-                    `;
-                }
-
-                html += `
-                    <div class="calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}">
-                        <div class="calendar-day-number">${dayNumber}</div>
-                        ${cardsHTML}
+            boardContent.innerHTML = `
+                <div class="board-header">
+                    <div class="board-header-left">
+                        <div class="board-title">${board.title}</div>
+                        <span class="member-role role-${board.role}">${board.role}</span>
                     </div>
-                `;
-            }
-
-            return html;
+                    <div class="board-header-right">
+                        <div class="view-switcher">
+                            <button class="view-btn" onclick="switchView('kanban')">
+                                📋 Kanban
+                            </button>
+                            <button class="view-btn" onclick="switchView('table')">
+                                📊 Tabela
+                            </button>
+                            <button class="view-btn active" onclick="switchView('calendar')">
+                                📅 Calendário
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="board-container calendar-view">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <h2>Vista de Calendário</h2>
+                            <div class="calendar-nav">
+                                <button class="btn">← Anterior</button>
+                                <button class="btn">Hoje</button>
+                                <button class="btn">Próximo →</button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid">
+                            <!-- Calendar implementation would go here -->
+                            <div class="calendar-day-header">Dom</div>
+                            <div class="calendar-day-header">Seg</div>
+                            <div class="calendar-day-header">Ter</div>
+                            <div class="calendar-day-header">Qua</div>
+                            <div class="calendar-day-header">Qui</div>
+                            <div class="calendar-day-header">Sex</div>
+                            <div class="calendar-day-header">Sáb</div>
+                            <!-- Calendar days would be generated here -->
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
-        // Create list HTML
+        // Create list HTML (for Kanban view)
         function createListHTML(list, canEdit) {
             return `
                 <div class="list" data-list-id="${list.id}">
@@ -2553,12 +2288,10 @@
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
             
-            // Create badges HTML
             let badgesHTML = '';
             if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0)) {
                 badgesHTML = '<div class="card-badges">';
                 
-                // Due date badge
                 if (card.dueDate) {
                     const dueDate = new Date(card.dueDate);
                     const now = new Date();
@@ -2573,7 +2306,6 @@
                     badgesHTML += `<span class="badge badge-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
                 }
                 
-                // Members avatars
                 if (card.members && card.members.length > 0) {
                     badgesHTML += '<div class="card-members">';
                     card.members.forEach(member => {
@@ -2585,7 +2317,6 @@
                 badgesHTML += '</div>';
             }
             
-            // Tags HTML
             let tagsHTML = '';
             if (card.tags && card.tags.length > 0) {
                 tagsHTML = '<div class="card-tags">';
@@ -2612,18 +2343,28 @@
             `;
         }
 
+        // Render empty state
+        function renderEmptyState() {
+            const boardContent = document.getElementById('boardContent');
+            boardContent.innerHTML = `
+                <div class="empty-state">
+                    <h2>Nenhum quadro selecionado</h2>
+                    <p>Crie um novo quadro para começar</p>
+                    <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
+                </div>
+            `;
+        }
+
         // Board operations
         function showCreateBoardModal() {
             document.getElementById('createBoardModal').classList.add('active');
             document.getElementById('newBoardTitle').focus();
-            toggleBoardsMenu();
         }
 
         function hideCreateBoardModal() {
             document.getElementById('createBoardModal').classList.remove('active');
             document.getElementById('newBoardTitle').value = '';
             
-            // Reset color selection
             document.querySelectorAll('.color-option').forEach(option => {
                 option.classList.remove('selected');
             });
@@ -2701,7 +2442,6 @@
                     notify.success('Quadro excluído com sucesso!');
                     hideConfirmDialog();
                     
-                    // If deleting current board, clear selection
                     if (appState.currentBoardId === boardId) {
                         appState.currentBoardId = null;
                         appState.currentBoard = null;
@@ -2756,7 +2496,7 @@
             try {
                 const response = await apiService.updateList(listId, { title: newTitle });
                 if (response.success) {
-                    await loadBoards(); // Update counts
+                    await loadBoards();
                 }
             } catch (error) {
                 console.error('Error updating list:', error);
@@ -2768,7 +2508,6 @@
             const menu = document.getElementById(`listMenu-${listId}`);
             const allMenus = document.querySelectorAll('.list-menu-dropdown');
             
-            // Close all other menus
             allMenus.forEach(m => {
                 if (m.id !== `listMenu-${listId}`) {
                     m.classList.remove('active');
@@ -2795,7 +2534,7 @@
                     notify.success('Lista excluída com sucesso!');
                     hideConfirmDialog();
                     await loadCurrentBoard();
-                    await loadBoards(); // Update counts
+                    await loadBoards();
                 }
             } catch (error) {
                 console.error('Error deleting list:', error);
@@ -2829,7 +2568,7 @@
                     notify.success('Cartão criado com sucesso!');
                     hideAddCardForm(listId);
                     await loadCurrentBoard();
-                    await loadBoards(); // Update counts
+                    await loadBoards();
                 }
             } catch (error) {
                 console.error('Error creating card:', error);
@@ -2844,7 +2583,7 @@
                 const response = await apiService.deleteCard(cardId);
                 if (response.success) {
                     await loadCurrentBoard();
-                    await loadBoards(); // Update counts
+                    await loadBoards();
                 }
             } catch (error) {
                 console.error('Error deleting card:', error);
@@ -2865,13 +2604,11 @@
                 if (response.success) {
                     const card = response.card;
                     
-                    // Set card details
                     document.getElementById('modalCardTitle').textContent = card.title;
                     document.getElementById('modalCardTitle').contentEditable = canEdit;
                     document.getElementById('cardDescription').value = card.description || '';
                     document.getElementById('cardDescription').readOnly = !canEdit;
                     
-                    // Set due date
                     if (card.dueDate) {
                         const date = new Date(card.dueDate);
                         const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -2883,20 +2620,15 @@
                     }
                     document.getElementById('dueDateInput').disabled = !canEdit;
                     
-                    // Show/hide edit controls based on permissions
                     document.querySelectorAll('.sidebar-button').forEach(btn => {
                         btn.style.display = canEdit ? 'flex' : 'none';
                     });
                     
                     document.getElementById('tagInput').style.display = canEdit ? 'block' : 'none';
                     
-                    // Render members selector
                     renderMembersSelector(card);
-                    
-                    // Render tags
                     renderTags(card);
                     
-                    // Show modal
                     document.getElementById('cardModal').classList.add('active');
                 }
             } catch (error) {
@@ -2906,7 +2638,6 @@
         }
 
         async function closeModal() {
-            // Save changes before closing
             const board = appState.currentBoard;
             const canEdit = board.role === 'admin' || board.role === 'editor';
             
@@ -2941,7 +2672,6 @@
             const board = appState.currentBoard;
             const modalBody = document.getElementById('membersModalBody');
             
-            // Current members
             const membersHTML = board.members.map(member => {
                 const isCurrentUser = member.userId === appState.currentUserId;
                 
@@ -2996,6 +2726,249 @@
             `;
         }
 
+        // Drag and drop
+        function handleDragStart(e) {
+            const board = appState.currentBoard;
+            if (board.role !== 'admin' && board.role !== 'editor') {
+                e.preventDefault();
+                return;
+            }
+            
+            appState.draggedCard = e.target;
+            appState.sourceListId = e.target.closest('.cards-container').dataset.listId;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const container = e.currentTarget;
+            const afterElement = getDragAfterElement(container, e.clientY);
+            
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+            
+            if (afterElement && afterElement !== appState.draggedCard) {
+                afterElement.classList.add('drag-over');
+            }
+        }
+
+        async function handleDrop(e) {
+            e.preventDefault();
+            
+            const targetListId = e.currentTarget.dataset.listId;
+            const targetContainer = e.currentTarget;
+            const afterElement = getDragAfterElement(targetContainer, e.clientY);
+            
+            const cardId = appState.draggedCard.dataset.cardId;
+            const cards = [...targetContainer.querySelectorAll('.card:not(.dragging)')];
+            const position = afterElement ? cards.indexOf(afterElement) : cards.length;
+            
+            try {
+                await apiService.moveCard(cardId, targetListId, position);
+                await loadCurrentBoard();
+                await loadBoards();
+            } catch (error) {
+                console.error('Error moving card:', error);
+                notify.error('Erro ao mover cartão');
+            }
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Confirm dialog
+        function showConfirmDialog(title, message, onConfirm) {
+            const dialog = document.getElementById('confirmDialog');
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            
+            const confirmButton = document.getElementById('confirmButton');
+            confirmButton.onclick = onConfirm;
+            
+            dialog.classList.add('active');
+        }
+
+        function hideConfirmDialog() {
+            document.getElementById('confirmDialog').classList.remove('active');
+        }
+
+        // Utilities
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').classList.remove('hide');
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').classList.add('hide');
+        }
+
+        function logout() {
+            apiService.logout();
+        }
+
+        // Card members
+        function toggleMembersSelector() {
+            const selector = document.getElementById('membersSelector');
+            selector.classList.toggle('active');
+        }
+
+        function renderMembersSelector(card) {
+            const selector = document.getElementById('membersSelector');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (!canEdit) {
+                selector.innerHTML = '';
+                renderAssignedMembers(card);
+                return;
+            }
+            
+            selector.innerHTML = board.members.map(member => {
+                const isSelected = card.members && card.members.find(m => m.id === member.userId);
+                return `
+                    <div class="member-option ${isSelected ? 'selected' : ''}" 
+                         onclick="toggleMember('${member.userId}')">
+                        <div class="avatar" style="background-color: ${member.color}">${member.initials}</div>
+                        <div>${member.name}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            renderAssignedMembers(card);
+        }
+
+        function renderAssignedMembers(card) {
+            const assignedMembers = document.getElementById('assignedMembers');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (card.members && card.members.length > 0) {
+                assignedMembers.innerHTML = card.members.map(member => `
+                    <div class="assigned-member" style="background-color: ${member.color}" title="${member.name}">
+                        ${member.initials}
+                        ${canEdit ? `<div class="remove-member" onclick="removeMember('${member.id}')">×</div>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                assignedMembers.innerHTML = '';
+            }
+        }
+
+        async function toggleMember(userId) {
+            try {
+                const response = await apiService.getCard(currentCardId);
+                const card = response.card;
+                const isAssigned = card.members && card.members.find(m => m.id === userId);
+                
+                if (isAssigned) {
+                    await apiService.removeCardMember(currentCardId, userId);
+                } else {
+                    await apiService.addCardMember(currentCardId, userId);
+                }
+                
+                await openCardModal(currentCardId);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error toggling member:', error);
+                notify.error('Erro ao atualizar membro');
+            }
+        }
+
+        async function removeMember(userId) {
+            event.stopPropagation();
+            await toggleMember(userId);
+        }
+
+        // Due date
+        async function updateDueDate() {
+            const dueDateInput = document.getElementById('dueDateInput');
+            
+            try {
+                const dueDate = dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null;
+                await apiService.updateCard(currentCardId, { dueDate });
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error updating due date:', error);
+                notify.error('Erro ao atualizar data');
+            }
+        }
+
+        // Tags
+        function renderTags(card) {
+            const tagsList = document.getElementById('tagsList');
+            const board = appState.currentBoard;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
+            
+            if (card.tags && card.tags.length > 0) {
+                tagsList.innerHTML = card.tags.map(tag => `
+                    <div class="tag-item">
+                        ${tag}
+                        ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')">×</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                tagsList.innerHTML = '';
+            }
+        }
+
+        async function handleTagInput(event) {
+            if (event.key === 'Enter' && event.target.value.trim()) {
+                await addTag(event.target.value.trim());
+                event.target.value = '';
+            }
+        }
+
+        async function addTag(tag) {
+            try {
+                await apiService.addCardTag(currentCardId, tag);
+                const response = await apiService.getCard(currentCardId);
+                renderTags(response.card);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error adding tag:', error);
+                notify.error('Erro ao adicionar tag');
+            }
+        }
+
+        async function removeTag(tag) {
+            try {
+                await apiService.removeCardTag(currentCardId, tag);
+                const response = await apiService.getCard(currentCardId);
+                renderTags(response.card);
+                await loadCurrentBoard();
+            } catch (error) {
+                console.error('Error removing tag:', error);
+                notify.error('Erro ao remover tag');
+            }
+        }
+
+        function focusTagInput() {
+            document.getElementById('tagInput').focus();
+        }
+
+        // Search users with debounce
         let searchTimeout;
         async function searchUsers(query) {
             clearTimeout(searchTimeout);
@@ -3090,244 +3063,6 @@
             }
         }
 
-        // Card members
-        function toggleMembersSelector() {
-            const selector = document.getElementById('membersSelector');
-            selector.classList.toggle('active');
-        }
-
-        function renderMembersSelector(card) {
-            const selector = document.getElementById('membersSelector');
-            const assignedMembers = document.getElementById('assignedMembers');
-            const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';
-            
-            if (!canEdit) {
-                selector.innerHTML = '';
-                renderAssignedMembers(card);
-                return;
-            }
-            
-            // Render member options (board members only)
-            selector.innerHTML = board.members.map(member => {
-                const isSelected = card.members && card.members.find(m => m.id === member.userId);
-                return `
-                    <div class="member-option ${isSelected ? 'selected' : ''}" 
-                         onclick="toggleMember('${member.userId}')">
-                        <div class="avatar" style="background-color: ${member.color}">${member.initials}</div>
-                        <div>${member.name}</div>
-                    </div>
-                `;
-            }).join('');
-            
-            renderAssignedMembers(card);
-        }
-
-        function renderAssignedMembers(card) {
-            const assignedMembers = document.getElementById('assignedMembers');
-            const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';
-            
-            if (card.members && card.members.length > 0) {
-                assignedMembers.innerHTML = card.members.map(member => `
-                    <div class="assigned-member" style="background-color: ${member.color}" title="${member.name}">
-                        ${member.initials}
-                        ${canEdit ? `<div class="remove-member" onclick="removeMember('${member.id}')">×</div>` : ''}
-                    </div>
-                `).join('');
-            } else {
-                assignedMembers.innerHTML = '';
-            }
-        }
-
-        async function toggleMember(userId) {
-            try {
-                // Check if member is already assigned
-                const response = await apiService.getCard(currentCardId);
-                const card = response.card;
-                const isAssigned = card.members && card.members.find(m => m.id === userId);
-                
-                if (isAssigned) {
-                    await apiService.removeCardMember(currentCardId, userId);
-                } else {
-                    await apiService.addCardMember(currentCardId, userId);
-                }
-                
-                // Reload card data
-                await openCardModal(currentCardId);
-                await loadCurrentBoard();
-            } catch (error) {
-                console.error('Error toggling member:', error);
-                notify.error('Erro ao atualizar membro');
-            }
-        }
-
-        async function removeMember(userId) {
-            event.stopPropagation();
-            await toggleMember(userId);
-        }
-
-        // Due date
-        async function updateDueDate() {
-            const dueDateInput = document.getElementById('dueDateInput');
-            
-            try {
-                const dueDate = dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null;
-                await apiService.updateCard(currentCardId, { dueDate });
-                await loadCurrentBoard();
-            } catch (error) {
-                console.error('Error updating due date:', error);
-                notify.error('Erro ao atualizar data');
-            }
-        }
-
-        // Tags
-        function renderTags(card) {
-            const tagsList = document.getElementById('tagsList');
-            const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';
-            
-            if (card.tags && card.tags.length > 0) {
-                tagsList.innerHTML = card.tags.map(tag => `
-                    <div class="tag-item">
-                        ${tag}
-                        ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')">×</span>` : ''}
-                    </div>
-                `).join('');
-            } else {
-                tagsList.innerHTML = '';
-            }
-        }
-
-        async function handleTagInput(event) {
-            if (event.key === 'Enter' && event.target.value.trim()) {
-                await addTag(event.target.value.trim());
-                event.target.value = '';
-            }
-        }
-
-        async function addTag(tag) {
-            try {
-                await apiService.addCardTag(currentCardId, tag);
-                const response = await apiService.getCard(currentCardId);
-                renderTags(response.card);
-                await loadCurrentBoard();
-            } catch (error) {
-                console.error('Error adding tag:', error);
-                notify.error('Erro ao adicionar tag');
-            }
-        }
-
-        async function removeTag(tag) {
-            try {
-                await apiService.removeCardTag(currentCardId, tag);
-                const response = await apiService.getCard(currentCardId);
-                renderTags(response.card);
-                await loadCurrentBoard();
-            } catch (error) {
-                console.error('Error removing tag:', error);
-                notify.error('Erro ao remover tag');
-            }
-        }
-
-        function focusTagInput() {
-            document.getElementById('tagInput').focus();
-        }
-
-        // Drag and drop
-        function handleDragStart(e) {
-            const board = appState.currentBoard;
-            if (board.role !== 'admin' && board.role !== 'editor') {
-                e.preventDefault();
-                return;
-            }
-            
-            appState.draggedCard = e.target;
-            appState.sourceListId = e.target.closest('.cards-container').dataset.listId;
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            const container = e.currentTarget;
-            const afterElement = getDragAfterElement(container, e.clientY);
-            
-            document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-            
-            if (afterElement && afterElement !== appState.draggedCard) {
-                afterElement.classList.add('drag-over');
-            }
-        }
-
-        async function handleDrop(e) {
-            e.preventDefault();
-            
-            const targetListId = e.currentTarget.dataset.listId;
-            const targetContainer = e.currentTarget;
-            const afterElement = getDragAfterElement(targetContainer, e.clientY);
-            
-            const cardId = appState.draggedCard.dataset.cardId;
-            const cards = [...targetContainer.querySelectorAll('.card:not(.dragging)')];
-            const position = afterElement ? cards.indexOf(afterElement) : cards.length;
-            
-            try {
-                await apiService.moveCard(cardId, targetListId, position);
-                await loadCurrentBoard();
-                await loadBoards(); // Update counts
-            } catch (error) {
-                console.error('Error moving card:', error);
-                notify.error('Erro ao mover cartão');
-            }
-        }
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
-            
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
-        // Confirm dialog
-        function showConfirmDialog(title, message, onConfirm) {
-            const dialog = document.getElementById('confirmDialog');
-            document.getElementById('confirmTitle').textContent = title;
-            document.getElementById('confirmMessage').textContent = message;
-            
-            const confirmButton = document.getElementById('confirmButton');
-            confirmButton.onclick = onConfirm;
-            
-            dialog.classList.add('active');
-        }
-
-        function hideConfirmDialog() {
-            document.getElementById('confirmDialog').classList.remove('active');
-        }
-
-        // Logout
-        function logout() {
-            apiService.logout();
-        }
-
         // Color selection
         document.querySelectorAll('.color-option').forEach(option => {
             option.addEventListener('click', function() {
@@ -3336,10 +3071,9 @@
             });
         });
 
-        // Keyboard shortcuts
+        // Event listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                // Close any open forms or modals
                 document.querySelectorAll('.add-card-form.active').forEach(form => {
                     form.classList.remove('active');
                 });
@@ -3348,7 +3082,6 @@
                 hideCreateBoardModal();
                 hideConfirmDialog();
                 closeMembersModal();
-                document.getElementById('boardsMenu').classList.remove('active');
                 document.querySelectorAll('.list-menu-dropdown').forEach(menu => {
                     menu.classList.remove('active');
                 });
@@ -3384,21 +3117,12 @@
 
         // Close menus when clicking outside
         document.addEventListener('click', (e) => {
-            const boardsMenu = document.getElementById('boardsMenu');
-            const boardsMenuBtn = document.querySelector('.boards-menu-btn');
-            
-            if (!boardsMenu.contains(e.target) && !boardsMenuBtn.contains(e.target)) {
-                boardsMenu.classList.remove('active');
-            }
-            
-            // Close list menus when clicking outside
             if (!e.target.closest('.list-menu') && !e.target.closest('.list-menu-dropdown')) {
                 document.querySelectorAll('.list-menu-dropdown').forEach(menu => {
                     menu.classList.remove('active');
                 });
             }
             
-            // Close user search results
             if (!e.target.closest('.user-search-input') && !e.target.closest('.user-search-results')) {
                 document.getElementById('userSearchResults')?.classList.remove('active');
             }
