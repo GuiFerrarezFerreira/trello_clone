@@ -4,7 +4,7 @@
 
 class ApiService {
     constructor() {
-        this.baseURL = 'https://relampagocriativo.com.br/dashboard/api';
+        this.baseURL = 'http://localhost/trello_clone/api';
         this.token = localStorage.getItem('authToken');
     }
 
