@@ -2178,7 +2178,7 @@
                         <div class="board-item-color" style="background: ${board.color}"></div>
                         <div class="board-item-info">
                             <div class="board-item-title">${board.title}</div>
-                            <div class="board-item-details">${board.listCount || 0} listas · ${board.cardCount || 0} cartões</div>
+                            <div class="board-item-lists">${board.listCount || 0} listas · ${board.cardCount || 0} cartões · ${board.role}</div>
                         </div>
                         ${canDelete ? `
                             <div class="board-delete" onclick="confirmDeleteBoard(event, '${board.id}')" title="Excluir quadro">
@@ -2188,6 +2188,13 @@
                     </div>
                 `;
             }).join('');
+            
+            // Only show create board button if user has permission
+            const createBoardBtn = document.querySelector('.create-board-btn');
+            if (createBoardBtn) {
+                createBoardBtn.style.display = appState.currentUser?.canCreateBoards ? 'flex' : 'none';
+            }            
+
         }
 
         // Switch board
@@ -2546,14 +2553,20 @@
             boardContent.innerHTML = `
                 <div class="empty-state">
                     <h2>Nenhum quadro selecionado</h2>
-                    <p>Crie um novo quadro para começar</p>
-                    <button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>
+                    <p>${appState.currentUser?.canCreateBoards ? 'Crie um novo quadro para começar' : 'Entre em contato com o administrador para participar de um quadro'}</p>
+                    ${appState.currentUser?.canCreateBoards ? '<button class="btn btn-primary" onclick="showCreateBoardModal()">Criar Quadro</button>' : ''}
                 </div>
             `;
         }
 
         // Board operations
         function showCreateBoardModal() {
+
+            if (!appState.currentUser?.canCreateBoards) {
+                notify.error('Você não tem permissão para criar quadros. Entre em contato com o administrador.');
+                return;
+            }        
+
             document.getElementById('createBoardModal').classList.add('active');
             document.getElementById('newBoardTitle').focus();
         }

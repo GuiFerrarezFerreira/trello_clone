@@ -362,6 +362,11 @@
             color: white;
         }
 
+        .badge-no-create {
+            background: #6b778c;
+            color: white;
+        }
+
         .boards-preview {
             display: flex;
             gap: 8px;
@@ -420,6 +425,15 @@
         .action-btn.delete:hover {
             background: #ffeae8;
             color: #c9372c;
+        }
+
+        .action-btn.toggle-permission {
+            color: #0079bf;
+        }
+
+        .action-btn.toggle-permission:hover {
+            background: #e4f0f6;
+            color: #026aa7;
         }
 
         /* Pagination */
@@ -846,6 +860,15 @@
                             Administradores têm acesso total ao sistema, incluindo gerenciamento de usuários.
                         </p>
                     </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="editCanCreateBoards" style="width: 16px; height: 16px;">
+                            <span>Permitir que este usuário crie novos quadros</span>
+                        </label>
+                        <p style="font-size: 12px; color: #6b778c; margin-top: 4px;">
+                            Se desmarcado, o usuário poderá apenas participar de quadros existentes.
+                        </p>
+                    </div>                    
                 </form>
             </div>
             <div class="modal-footer">
@@ -1030,6 +1053,7 @@
                                     <div class="user-name">
                                         ${user.firstName} ${user.lastName}
                                         ${user.isSystemAdmin ? '<span class="badge badge-admin">Admin</span>' : ''}
+                                        ${!user.canCreateBoards ? '<span class="badge badge-no-create">Sem permissão para criar quadros</span>' : ''}
                                     </div>
                                     <div class="user-email">${user.email}</div>
                                 </div>
@@ -1048,6 +1072,10 @@
                         <td>${formattedDate}</td>
                         <td>
                             <div class="actions">
+                                <button class="action-btn toggle-permission" onclick="toggleBoardPermission('${user.id}', ${!user.canCreateBoards})" 
+                                        title="${user.canCreateBoards ? 'Remover permissão de criar quadros' : 'Conceder permissão de criar quadros'}">
+                                    ${user.canCreateBoards ? '🚫' : '✅'} Quadros
+                                </button>                    
                                 <button class="action-btn" onclick="openEditModal('${user.id}')">
                                     ✏️ Editar
                                 </button>
@@ -1215,6 +1243,7 @@
             document.getElementById('editLastName').value = user.lastName;
             document.getElementById('editEmail').value = user.email;
             document.getElementById('editPassword').value = '';
+            document.getElementById('editCanCreateBoards').checked = user.canCreateBoards;            
             
             // Show admin checkbox only for current admin editing other users
             const adminCheckboxGroup = document.getElementById('adminCheckboxGroup');
@@ -1238,7 +1267,8 @@
             const updates = {
                 firstName: document.getElementById('editFirstName').value.trim(),
                 lastName: document.getElementById('editLastName').value.trim(),
-                email: document.getElementById('editEmail').value.trim()
+                email: document.getElementById('editEmail').value.trim(),
+                canCreateBoards: document.getElementById('editCanCreateBoards').checked                
             };
             
             const password = document.getElementById('editPassword').value;
@@ -1316,6 +1346,30 @@
             } catch (error) {
                 console.error('Error creating user:', error);
                 showMessage('Erro ao criar usuário: ' + error.message, 'error');
+            }
+        }
+
+        // Toggle board creation permission
+        async function toggleBoardPermission(userId, canCreate) {
+            try {
+                const response = await fetch(`${apiService.baseURL}/toggle-board-permission.php`, {
+                    method: 'POST',
+                    headers: apiService.setAuthHeader(),
+                    body: JSON.stringify({
+                        userId: userId,
+                        canCreateBoards: canCreate
+                    })
+                });
+                
+                const data = await apiService.handleResponse(response);
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    loadUsers();
+                }
+            } catch (error) {
+                console.error('Error toggling board permission:', error);
+                showMessage('Erro ao atualizar permissão: ' + error.message, 'error');
             }
         }
 

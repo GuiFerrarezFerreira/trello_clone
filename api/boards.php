@@ -179,6 +179,22 @@ switch($method) {
         $data = json_decode(file_get_contents("php://input"));
         
         if (!empty($data->title) && !empty($data->color)) {
+            // Check if user has permission to create boards
+            $checkPermQuery = "SELECT can_create_boards FROM users WHERE id = ?";
+            $checkPermStmt = $db->prepare($checkPermQuery);
+            $checkPermStmt->bindParam(1, $user_id);
+            $checkPermStmt->execute();
+            $userPerm = $checkPermStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$userPerm || $userPerm['can_create_boards'] != 1) {
+                http_response_code(403);
+                echo json_encode(array(
+                    "success" => false,
+                    "message" => "Você não tem permissão para criar quadros. Entre em contato com o administrador."
+                ));
+                exit();
+            }
+            
             $db->beginTransaction();
             
             try {

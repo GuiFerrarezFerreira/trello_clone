@@ -114,7 +114,8 @@ switch($method) {
                 "ownedBoardsCount" => $row['owned_boards_count'],
                 "boards" => $boards,
                 "createdAt" => $row['created_at'],
-                "isSystemAdmin" => $row['is_admin'] == 1
+                "isSystemAdmin" => $row['is_admin'] == 1,
+                "canCreateBoards" => $row['can_create_boards'] == 1
             );
         }
         
@@ -190,10 +191,25 @@ switch($method) {
                 $params[] = $data->isAdmin ? 1 : 0;
             }
             
+            // Update board creation permission
+            if (isset($data->canCreateBoards)) {
+                $updates[] = "can_create_boards = ?";
+                $params[] = $data->canCreateBoards ? 1 : 0;
+            }
+            
             // Update initials if name changed
             if (isset($data->firstName) || isset($data->lastName)) {
-                $firstInitial = isset($data->firstName) ? substr($data->firstName, 0, 1) : substr($row['first_name'], 0, 1);
-                $lastInitial = isset($data->lastName) ? substr($data->lastName, 0, 1) : substr($row['last_name'], 0, 1);
+                // Get current name if not provided
+                if (!isset($data->firstName) || !isset($data->lastName)) {
+                    $getNameQuery = "SELECT first_name, last_name FROM users WHERE id = ?";
+                    $getNameStmt = $db->prepare($getNameQuery);
+                    $getNameStmt->bindParam(1, $target_user_id);
+                    $getNameStmt->execute();
+                    $currentName = $getNameStmt->fetch(PDO::FETCH_ASSOC);
+                }
+                
+                $firstInitial = isset($data->firstName) ? substr($data->firstName, 0, 1) : substr($currentName['first_name'], 0, 1);
+                $lastInitial = isset($data->lastName) ? substr($data->lastName, 0, 1) : substr($currentName['last_name'], 0, 1);
                 $updates[] = "initials = ?";
                 $params[] = strtoupper($firstInitial . $lastInitial);
             }

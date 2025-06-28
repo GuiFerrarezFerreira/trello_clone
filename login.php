@@ -557,6 +557,10 @@ if (isset($_SESSION['user_id'])) {
                 
                 if (response.success) {
                     // Save token in localStorage (handled by apiService)
+                    // Also save canCreateBoards permission
+                    if (response.canCreateBoards !== undefined) {
+                        localStorage.setItem('canCreateBoards', response.canCreateBoards);
+                    }                    
                     // Redirect to index
                     window.location.href = 'index.php';
                 } else {

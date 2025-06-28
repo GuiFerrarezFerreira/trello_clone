@@ -25,7 +25,7 @@ if($auth_header) {
         $database = new Database();
         $db = $database->getConnection();
         
-        $query = "SELECT id, first_name, last_name, email, initials, color, is_admin FROM users WHERE id = ?";
+        $query = "SELECT id, first_name, last_name, email, initials, color, is_admin, can_create_boards FROM users WHERE id = ?";
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(1, $user_id);
@@ -44,7 +44,8 @@ if($auth_header) {
                     "email" => $row['email'],
                     "initials" => $row['initials'],
                     "color" => $row['color'],
-                    "isAdmin" => $row['is_admin'] == 1
+                    "isAdmin" => $row['is_admin'] == 1,
+                    "canCreateBoards" => $row['can_create_boards'] == 1                    
                 )
             ));
         } else {
