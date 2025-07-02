@@ -1358,6 +1358,49 @@
                 margin-top: 20px;
             }
         }
+
+/* Estilização melhorada do input de data */
+.date-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    background: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #0079bf;
+}
+
+/* Estilização do calendário nativo */
+.date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.date-input::-webkit-datetime-edit {
+    padding: 0;
+}
+
+.date-input::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+.date-input::-webkit-datetime-edit-text {
+    padding: 0 0.3em;
+}
+
+.date-input::-webkit-datetime-edit-month-field,
+.date-input::-webkit-datetime-edit-day-field,
+.date-input::-webkit-datetime-edit-year-field,
+.date-input::-webkit-datetime-edit-hour-field,
+.date-input::-webkit-datetime-edit-minute-field {
+    padding: 0;
+}        
     </style>
 </head>
 <body>
@@ -1496,10 +1539,18 @@
                         <div class="assigned-members" id="assignedMembers"></div>
                     </div>
                     
-                    <div class="sidebar-section">
-                        <h4>Data de término</h4>
-                        <input type="datetime-local" class="date-input" id="dueDateInput" onchange="updateDueDate()">
-                    </div>
+                <div class="sidebar-section">
+                    <h4>Data de término</h4>
+                    <input type="datetime-local" 
+                           class="date-input" 
+                           id="dueDateInput" 
+                           onchange="updateDueDate()"
+                           min="2020-01-01T00:00"
+                           max="2030-12-31T23:59">
+                    <small style="display: block; margin-top: 4px; color: #6b778c; font-size: 12px;">
+                        Clique para selecionar data e hora
+                    </small>
+                </div>
                     
                     <div class="sidebar-section">
                         <h4>Tags</h4>
@@ -2487,10 +2538,12 @@
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
             
+            // Create badges HTML
             let badgesHTML = '';
-            if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0) || card.hasImages) {
+            if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0)) {
                 badgesHTML = '<div class="card-badges">';
                 
+                // Due date badge
                 if (card.dueDate) {
                     const dueDate = new Date(card.dueDate);
                     const now = new Date();
@@ -2501,7 +2554,13 @@
                     if (diffDays < 0) dueDateClass = 'overdue';
                     else if (diffDays <= 1) dueDateClass = 'due-soon';
                     
-                    const dateStr = dueDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+                    // Formatação da data em português
+                    const options = { 
+                        day: 'numeric', 
+                        month: 'short',
+                        year: dueDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+                    };
+                    const dateStr = dueDate.toLocaleDateString('pt-BR', options);
                     badgesHTML += `<span class="badge badge-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
                 }
 
@@ -2807,7 +2866,7 @@
         async function openCardModal(cardId) {
             currentCardId = cardId;
             const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';
+            const canEdit = board.role === 'admin' || board.role === 'editor';;
             
             try {
                 const response = await apiService.getCard(cardId);
@@ -2819,8 +2878,10 @@
                     document.getElementById('cardDescription').value = card.description || '';
                     document.getElementById('cardDescription').readOnly = !canEdit;
                     
+                    // Set due date
                     if (card.dueDate) {
                         const date = new Date(card.dueDate);
+                        // Ajusta o fuso horário para exibir corretamente no input datetime-local
                         const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
                             .toISOString()
                             .slice(0, 16);
@@ -2829,6 +2890,23 @@
                         document.getElementById('dueDateInput').value = '';
                     }
                     document.getElementById('dueDateInput').disabled = !canEdit;
+                    
+                    // Adiciona helper text se tiver data
+                    if (card.dueDate && canEdit) {
+                        const date = new Date(card.dueDate);
+                        const formattedDate = date.toLocaleDateString('pt-BR', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        const helperText = document.querySelector('.sidebar-section small');
+                        if (helperText) {
+                            helperText.textContent = formattedDate;
+                        }
+                    }
                     
                     document.querySelectorAll('.sidebar-button').forEach(btn => {
                         btn.style.display = canEdit ? 'flex' : 'none';
