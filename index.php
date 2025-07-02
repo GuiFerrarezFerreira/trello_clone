@@ -1610,6 +1610,25 @@
                         <div class="image-gallery" id="imageGallery"></div>
                     </div>
 
+                    <div class="comments-section">
+                        <h3>💬 Comentários</h3>
+                        <div class="comments-container">
+                            <div class="comment-form">
+                                <div class="comment-input-wrapper">
+                                    <div class="comment-avatar" id="currentUserAvatar"></div>
+                                    <textarea class="comment-input" id="commentInput" 
+                                              placeholder="Escreva um comentário..." 
+                                              rows="1"></textarea>
+                                </div>
+                                <button class="btn btn-primary btn-comment" onclick="addComment()" 
+                                        id="commentButton" style="display: none;">
+                                    Comentar
+                                </button>
+                            </div>
+                            <div class="comments-list" id="commentsList"></div>
+                        </div>
+                    </div>                    
+
                 </div>
 
                 <!-- Image Preview Modal -->
@@ -2195,6 +2214,59 @@
         .assigned-member:hover .remove-member {
             display: flex;
         }
+
+        /* Comments section styles */
+        .comments-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .comments-container {
+            margin-top: 12px;
+        }
+
+        .comment-form {
+            margin-bottom: 20px;
+        }
+
+        .comment-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .comment-input {
+            flex: 1;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 36px;
+            transition: all 0.2s;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #0079bf;
+            box-shadow: 0 0 0 1px #0079bf;
+            min-height: 60px;
+        }        
     </style>
 
     <script src="js/services/api.service.js"></script>
@@ -2622,6 +2694,11 @@
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
             
+            // Comment indicator
+            if (card.commentCount && card.commentCount > 0) {
+                badgesHTML += `<span class="badge">💬 ${card.commentCount}</span>`;
+            }
+
             // Get cover image if exists
             let coverImageHTML = '';
             if (card.coverImage) {
@@ -2953,6 +3030,162 @@
             }
         }
 
+        // Comments functions
+        async function loadCardComments() {
+            try {
+                const response = await apiService.getCardComments(currentCardId);
+                if (response.success) {
+                    renderComments(response.comments);
+                }
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+
+        function renderComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            const board = appState.currentBoard;
+            const isAdmin = board.role === 'admin';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<div class="empty-comments">Ainda não há comentários. Seja o primeiro a comentar!</div>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => {
+                const createdDate = new Date(comment.createdAt);
+                const timeAgo = getTimeAgo(createdDate);
+                const canDelete = comment.isOwner || isAdmin;
+                const canEdit = comment.isOwner;
+                
+                return `
+                    <div class="comment-item" id="comment-${comment.id}">
+                        <div class="comment-avatar" style="background-color: ${comment.user.color}">
+                            ${comment.user.initials}
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${comment.user.name}</span>
+                                <span class="comment-time" title="${createdDate.toLocaleString('pt-BR')}">${timeAgo}</span>
+                            </div>
+                            <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.comment)}</div>
+                            ${canEdit ? `
+                                <div class="comment-edit-form" id="editForm-${comment.id}">
+                                    <textarea class="comment-edit-input" id="editInput-${comment.id}">${escapeHtml(comment.comment)}</textarea>
+                                    <div class="comment-edit-buttons">
+                                        <button class="btn btn-primary" onclick="saveCommentEdit(${comment.id})">Salvar</button>
+                                        <button class="btn btn-cancel" onclick="cancelCommentEdit(${comment.id})">Cancelar</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            <div class="comment-actions">
+                                ${canEdit ? `<span class="comment-action" onclick="editComment(${comment.id})">Editar</span>` : ''}
+                                ${canDelete ? `<span class="comment-action delete" onclick="deleteComment(${comment.id})">Excluir</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function addComment() {
+            const commentInput = document.getElementById('commentInput');
+            const comment = commentInput.value.trim();
+            
+            if (!comment) {
+                notify.error('Por favor, escreva um comentário');
+                return;
+            }
+            
+            try {
+                const response = await apiService.addCardComment(currentCardId, comment);
+                if (response.success) {
+                    commentInput.value = '';
+                    commentInput.style.height = 'auto';
+                    document.getElementById('commentButton').style.display = 'none';
+                    await loadCardComments();
+                    await loadCurrentBoard(); // Update card activity indicators if needed
+                }
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                notify.error('Erro ao adicionar comentário');
+            }
+        }
+
+        function editComment(commentId) {
+            const textDiv = document.getElementById(`commentText-${commentId}`);
+            const editForm = document.getElementById(`editForm-${commentId}`);
+            
+            textDiv.style.display = 'none';
+            editForm.classList.add('active');
+            
+            const editInput = document.getElementById(`editInput-${commentId}`);
+            editInput.focus();
+            editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+        }
+
+        function cancelCommentEdit(commentId) {
+            const textDiv = document.getElementById(`commentText-${commentId}`);
+            const editForm = document.getElementById(`editForm-${commentId}`);
+            
+            textDiv.style.display = 'block';
+            editForm.classList.remove('active');
+        }
+
+        async function saveCommentEdit(commentId) {
+            const editInput = document.getElementById(`editInput-${commentId}`);
+            const newComment = editInput.value.trim();
+            
+            if (!newComment) {
+                notify.error('O comentário não pode estar vazio');
+                return;
+            }
+            
+            try {
+                const response = await apiService.updateCardComment(commentId, newComment);
+                if (response.success) {
+                    await loadCardComments();
+                }
+            } catch (error) {
+                console.error('Error updating comment:', error);
+                notify.error('Erro ao atualizar comentário');
+            }
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm('Tem certeza que deseja excluir este comentário?')) {
+                return;
+            }
+            
+            try {
+                const response = await apiService.deleteCardComment(commentId);
+                if (response.success) {
+                    await loadCardComments();
+                }
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                notify.error('Erro ao excluir comentário');
+            }
+        }
+
+        // Utility functions
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'agora mesmo';
+            if (diffInSeconds < 3600) return `há ${Math.floor(diffInSeconds / 60)} minuto${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
+            if (diffInSeconds < 86400) return `há ${Math.floor(diffInSeconds / 3600)} hora${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
+            if (diffInSeconds < 604800) return `há ${Math.floor(diffInSeconds / 86400)} dia${Math.floor(diffInSeconds / 86400) > 1 ? 's' : ''}`;
+            
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
         // Card modal
         let currentCardId = null;
 
@@ -3014,6 +3247,14 @@
 
                     // Load images
                     await loadCardImages();
+
+                    // Setup current user avatar for comments
+                    const currentUserAvatar = document.getElementById('currentUserAvatar');
+                    currentUserAvatar.textContent = appState.currentUser.initials;
+                    currentUserAvatar.style.backgroundColor = appState.currentUser.color;
+
+                    // Load comments
+                    await loadCardComments();
 
                     document.getElementById('cardModal').classList.add('active');
                 }
@@ -3685,6 +3926,30 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
             
+
+            // Setup comment input behavior
+            const commentInput = document.getElementById('commentInput');
+            const commentButton = document.getElementById('commentButton');
+
+            commentInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+                
+                if (this.value.trim()) {
+                    commentButton.style.display = 'block';
+                } else {
+                    commentButton.style.display = 'none';
+                }
+            });
+
+            commentInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (this.value.trim()) {
+                        addComment();
+                    }
+                }
+            });            
             // Setup drag and drop for images
             const imageUploadArea = document.getElementById('imageUploadArea');
             
