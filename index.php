@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trello Clone</title>
+    <title>RC ADM</title>
     <style>
         * {
             margin: 0;
@@ -439,7 +439,7 @@
 
         /* View Switcher */
         .view-switcher {
-            display: flex;
+            display: none;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 3px;
             padding: 4px;
@@ -1407,7 +1407,7 @@
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-content">
-            <div class="loading-logo">T</div>
+            <div class="loading-logo">RC</div>
             <h2>Carregando...</h2>
             <div class="loading-spinner"></div>
         </div>
@@ -1417,8 +1417,8 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <div class="logo">T</div>
-                <h1>Trello Clone</h1>
+                <div class="logo">RC</div>
+                <h1>RC ADM</h1>
             </div>
             <button class="sidebar-toggle" onclick="toggleSidebar()">
                 ←
@@ -1443,7 +1443,12 @@
                 <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
                     ☰
                 </button>
-            </div>
+            <div class="view-toggle">
+                <button class="view-btn active">📋 Quadros</button>
+                <button class="view-btn" onclick="location.href='calendar.php'">📅 Calendário</button>
+                <button class="view-btn" onclick="location.href='table.php'">📊 Tabela</button>
+            </div>                
+            </div>            
             <div class="navbar-right">
                 <a href="admin.php" class="admin-link" id="adminLink" style="display: none;">
                     ⚙️ Administração
@@ -1592,6 +1597,38 @@
 
     <!-- Additional styles for specific components -->
     <style>
+
+        .view-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            padding: 4px;
+            margin-left: 20px;
+        }
+
+        .view-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .view-btn.active {
+            background: white;
+            color: #0079bf;
+        }
+
         /* Additional member management styles */
         .member-row {
             display: flex;
@@ -2294,6 +2331,7 @@
             boardContent.style.background = `linear-gradient(135deg, ${board.color} 0%, ${board.color}dd 100%)`;
             
             // Render based on current view
+            
             switch (appState.currentView) {
                 case 'kanban':
                     renderKanbanView(board);
