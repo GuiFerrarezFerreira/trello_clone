@@ -14,7 +14,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Trello Clone</title>
+    <title>Login - RC ADM</title>
     <style>
         * {
             margin: 0;
@@ -367,8 +367,8 @@ if (isset($_SESSION['user_id'])) {
     <div class="login-container">
         <div class="login-header">
             <div class="logo-container">
-                <div class="logo">T</div>
-                <h1 class="app-title">Trello Clone</h1>
+                <div class="logo">RC</div>
+                <h1 class="app-title">Relampago Criativo</h1>
             </div>
             <p class="login-subtitle">Organize seus projetos com facilidade</p>
         </div>
@@ -425,7 +425,7 @@ if (isset($_SESSION['user_id'])) {
                 </button>
             </form>
 
-            <div class="divider">
+            <!-- <div class="divider">
                 <span>ou continue com</span>
             </div>
 
@@ -438,11 +438,11 @@ if (isset($_SESSION['user_id'])) {
                     <span>🔵</span>
                     <span>Microsoft</span>
                 </a>
-            </div>
+            </div> 
 
             <div class="signup-link">
                 Não tem uma conta? <a href="register.php">Cadastre-se gratuitamente</a>
-            </div>
+            </div> -->
         </div>
     </div>
 

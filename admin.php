@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administração de Usuários - Trello Clone</title>
+    <title>Administração de Usuários - RC ADM</title>
     <style>
         * {
             margin: 0;
@@ -744,7 +744,7 @@
     <nav class="navbar">
         <div class="navbar-left">
             <h1>
-                <div class="logo">T</div>
+                <div class="logo">RC</div>
                 Administração
             </h1>
             <a href="index.php" class="nav-link">← Voltar aos Quadros</a>

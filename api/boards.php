@@ -76,7 +76,8 @@ switch($method) {
                 $card_query = "SELECT c.*, 
                               GROUP_CONCAT(DISTINCT cl.label) as labels,
                               GROUP_CONCAT(DISTINCT ct.tag) as tags,
-                              (SELECT COUNT(*) FROM card_images WHERE card_id = c.id) as image_count
+                              (SELECT COUNT(*) FROM card_images WHERE card_id = c.id) as image_count,
+                              (SELECT file_path FROM card_images WHERE card_id = c.id AND is_cover = 1 LIMIT 1) as cover_image
                               FROM cards c
                               LEFT JOIN card_labels cl ON c.id = cl.card_id
                               LEFT JOIN card_tags ct ON c.id = ct.card_id
@@ -115,9 +116,12 @@ switch($method) {
                         "description" => $card['description'],
                         "labels" => $card['labels'] ? explode(',', $card['labels']) : array(),
                         "tags" => $card['tags'] ? explode(',', $card['tags']) : array(),
-                        "members" => $card_members, // Agora com informações completas
+                        "members" => $card_members,
                         "dueDate" => $card['due_date'],
-                        "position" => $card['position']
+                        "position" => $card['position'],
+                        "hasImages" => $card['image_count'] > 0,
+                        "imageCount" => $card['image_count'],
+                        "coverImage" => $card['cover_image'] 
                     );
                 }
                 

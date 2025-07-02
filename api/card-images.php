@@ -72,6 +72,7 @@ switch($method) {
                     "filename" => $row['filename'],
                     "url" => $row['file_path'],
                     "size" => $row['file_size'],
+                    "isCover" => $row['is_cover'] == 1, // ADICIONAR ESTA LINHA
                     "uploadedBy" => array(
                         "name" => $row['first_name'] . " " . $row['last_name'],
                         "initials" => $row['initials'],
@@ -161,6 +162,22 @@ switch($method) {
             $stmt->bindParam(5, $user_id);
             
             if ($stmt->execute()) {
+                $image_id = $db->lastInsertId();
+
+                // Se for a primeira imagem do cartão, definir como capa
+                $check_query = "SELECT COUNT(*) as total FROM card_images WHERE card_id = ?";
+                $check_stmt = $db->prepare($check_query);
+                $check_stmt->bindParam(1, $card_id);
+                $check_stmt->execute();
+                $result = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($result['total'] == 1) {
+                    $cover_query = "UPDATE card_images SET is_cover = 1 WHERE id = ?";
+                    $cover_stmt = $db->prepare($cover_query);
+                    $cover_stmt->bindParam(1, $image_id);
+                    $cover_stmt->execute();
+                }                
+                
                 // Log activity
                 $activity_query = "INSERT INTO activities (board_id, user_id, action, description) 
                                  SELECT l.board_id, ?, 'image_added', ?

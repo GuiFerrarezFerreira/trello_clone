@@ -651,13 +651,27 @@
         .card {
             background: white;
             border-radius: 3px;
-            padding: 8px 12px;
             margin-bottom: 8px;
             cursor: pointer;
             box-shadow: 0 1px 0 rgba(9, 30, 66, 0.13);
             transition: all 0.2s;
             position: relative;
+            overflow: hidden; /* Adicionar esta linha */
         }
+
+        /* Adicionar novo estilo para imagem de capa */
+        .card-cover {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Adicionar novo estilo para conteúdo do cartão */
+        .card-content {
+            padding: 8px 12px;
+        }        
 
         .card:hover {
             box-shadow: 0 1px 4px rgba(9, 30, 66, 0.2);
@@ -675,8 +689,8 @@
             width: 24px;
             height: 24px;
             border-radius: 3px;
-            background: rgba(0, 0, 0, 0.1);
-            color: #6b778c;
+            background: rgba(0, 0, 0, 0.8); /* Mudar de 0.1 para 0.8 */
+            color: white; /* Mudar de #6b778c para white */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -686,6 +700,20 @@
             cursor: pointer;
             z-index: 10;
         }
+
+        /* Adicionar estilo para labels com imagem de capa */
+        .card.has-cover .card-labels {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 40px;
+        }
+
+        /* Adicionar estilo para due-date hoje */
+        .badge-due-date.due-today {
+            background: #ff991a;
+            color: #172b4d;
+        }        
 
         .card-delete:hover {
             background: #eb5a46;
@@ -1922,20 +1950,30 @@
             object-fit: cover;
         }
 
-        .image-item-delete {
+        .image-item-actions {
             position: absolute;
             top: 4px;
             right: 4px;
-            width: 24px;
-            height: 24px;
+            display: none;
+            gap: 4px;
+        }
+
+        .image-item:hover .image-item-actions {
+            display: flex;
+        }
+
+        .image-item-delete,
+        .image-item-cover {
+            width: 28px;
+            height: 28px;
             background: rgba(0, 0, 0, 0.7);
             color: white;
             border-radius: 3px;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .image-item:hover .image-item-delete {
@@ -1944,6 +1982,14 @@
 
         .image-item-delete:hover {
             background: #eb5a46;
+        }
+
+        .image-item-cover:hover {
+            background: #0079bf;
+        }
+
+        .image-item-cover.active {
+            background: #61bd4f;
         }
 
         .image-preview-modal {
@@ -2576,6 +2622,12 @@
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
             
+            // Get cover image if exists
+            let coverImageHTML = '';
+            if (card.coverImage) {
+                coverImageHTML = `<img src="${card.coverImage}" alt="" class="card-cover" onerror="this.style.display='none'">`;
+            }
+            
             // Create badges HTML
             let badgesHTML = '';
             if (card.dueDate || (card.members && card.members.length > 0) || (card.tags && card.tags.length > 0)) {
@@ -2602,8 +2654,8 @@
                     badgesHTML += `<span class="badge badge-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
                 }
 
-                // Image indicator
-                if (card.hasImages) {
+                // Image indicator (only if there are multiple images or no cover)
+                if (card.hasImages && (!card.coverImage || card.imageCount > 1)) {
                     badgesHTML += `<span class="badge">📷 ${card.imageCount || ''}</span>`;
                 }                
                 
@@ -2628,7 +2680,7 @@
             }
             
             return `
-                <div class="card" draggable="${canEdit ? 'true' : 'false'}" data-card-id="${card.id}" 
+                <div class="card ${card.coverImage ? 'has-cover' : ''}" draggable="${canEdit ? 'true' : 'false'}" data-card-id="${card.id}" 
                      ${canEdit ? `ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)"` : ''}
                      onclick="openCardModal('${card.id}')">
                     ${canEdit ? `
@@ -2636,10 +2688,13 @@
                             ×
                         </div>
                     ` : ''}
-                    ${labelsHTML ? `<div class="card-labels">${labelsHTML}</div>` : ''}
-                    ${card.title}
-                    ${tagsHTML}
-                    ${badgesHTML}
+                    ${coverImageHTML}
+                    <div class="card-content">
+                        ${labelsHTML ? `<div class="card-labels">${labelsHTML}</div>` : ''}
+                        ${card.title}
+                        ${tagsHTML}
+                        ${badgesHTML}
+                    </div>
                 </div>
             `;
         }
@@ -3321,16 +3376,44 @@
                 return;
             }
             
-            gallery.innerHTML = images.map(image => `
-                <div class="image-item" onclick="openImagePreview('${image.url}')">
-                    <img src="${image.url}" alt="${image.filename}" loading="lazy">
-                    ${canEdit ? `
-                        <div class="image-item-delete" onclick="confirmDeleteImage(event, ${image.id})" title="Excluir imagem">
-                            ×
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
+            gallery.innerHTML = images.map(image => {
+                const isCover = image.isCover || false;
+                return `
+                    <div class="image-item" onclick="openImagePreview('${image.url}')">
+                        <img src="${image.url}" alt="${image.filename}" loading="lazy">
+                        ${canEdit ? `
+                            <div class="image-item-actions">
+                                <div class="image-item-cover ${isCover ? 'active' : ''}" 
+                                     onclick="setCoverImage(event, ${image.id})" 
+                                     title="${isCover ? 'Capa atual' : 'Definir como capa'}">
+                                    ${isCover ? '✓' : '🖼️'}
+                                </div>
+                                <div class="image-item-delete" 
+                                     onclick="confirmDeleteImage(event, ${image.id})" 
+                                     title="Excluir imagem">
+                                    ×
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function setCoverImage(event, imageId) {
+            event.stopPropagation();
+            
+            try {
+                const response = await apiService.setCoverImage(currentCardId, imageId);
+                if (response.success) {
+                    notify.success('Imagem de capa definida!');
+                    await loadCurrentBoard();
+                    await loadCardImages();
+                }
+            } catch (error) {
+                console.error('Error setting cover image:', error);
+                notify.error('Erro ao definir imagem de capa');
+            }
         }
 
         function triggerImageUpload() {

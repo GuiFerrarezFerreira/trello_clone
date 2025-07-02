@@ -558,6 +558,20 @@ class ApiService {
             throw error;
         }
     }
+
+    async setCoverImage(cardId, coverImageId) {
+        try {
+            const response = await fetch(`${this.baseURL}/card-cover.php`, {
+                method: 'PUT',
+                headers: this.setAuthHeader(),
+                body: JSON.stringify({ cardId, coverImageId })
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw error;
+        }
+    }    
 }
 
 // Create singleton instance
