@@ -895,15 +895,23 @@
             background: #026aa7;
         }
 
-        .btn-cancel {
-            background: transparent;
-            color: #6b778c;
-            padding: 6px;
-        }
+.btn-cancel {
+    background: transparent;
+    color: #6b778c;
+    border: 1px solid #dfe1e6;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
 
-        .btn-cancel:hover {
-            color: #172b4d;
-        }
+.btn-cancel:hover {
+    background: #f4f5f7;
+    border-color: #c1c7d0;
+    color: #172b4d;
+}
 
         .add-list {
             background: rgba(235, 236, 240, 0.8);
@@ -2266,7 +2274,290 @@
             border-color: #0079bf;
             box-shadow: 0 0 0 1px #0079bf;
             min-height: 60px;
-        }        
+        }  
+
+/* Estilos adicionais para completar o sistema de comentários */
+
+/* Estilo para comentários individuais */
+.comment-item {
+    display: flex;
+    gap: 12px;
+    position: relative;
+}
+
+.comment-content {
+    flex: 1;
+    background: #f4f5f7;
+    border-radius: 3px;
+    padding: 12px;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #172b4d;
+    font-size: 14px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #6b778c;
+}
+
+.comment-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #172b4d;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Ações de comentário (editar/excluir) */
+.comment-actions {
+    position: absolute;
+    top: 32px;
+    right: 12px;
+    display: none;
+    gap: 4px;
+}
+
+.comment-item:hover .comment-actions {
+    display: flex;
+}
+
+.comment-action {
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+    color: #5e6c84;
+}
+
+.comment-action:hover {
+    background: rgba(0, 0, 0, 0.2);
+    color: #172b4d;
+}
+
+.comment-action.delete:hover {
+    background: #eb5a46;
+    color: white;
+}
+
+/* Formulário de edição de comentário */
+.comment-edit-form {
+    display: none;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.comment-edit-form.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-edit-input {
+    width: 100%;
+    border: 1px solid #0079bf;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.comment-edit-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Estado vazio de comentários */
+.empty-comments {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b778c;
+    font-size: 14px;
+}
+
+/* Ajustes para o botão de comentar */
+.btn-comment {
+    margin-top: 8px;
+    margin-left: 44px; /* Alinha com o input, considerando o avatar */
+}
+
+/* Animações para melhor UX */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment-item {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+    .comment-input-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .comment-avatar {
+        align-self: flex-start;
+    }
+    
+    .btn-comment {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+    
+    .comment-actions {
+        position: static;
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .comment-item:hover .comment-actions {
+        display: flex;
+    }
+}
+
+/* Melhorias visuais */
+.comment-content {
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+
+.comment-content:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Indicador de edição */
+.comment-edit-form.active {
+    padding: 12px;
+    background: white;
+    border: 1px solid #0079bf;
+    border-radius: 3px;
+    margin-top: 8px;
+}
+
+/* Melhor feedback visual para o input de comentário */
+.comment-input {
+    background: white;
+    transition: all 0.2s, height 0s;
+}
+
+.comment-input:hover {
+    border-color: #c1c7d0;
+}
+
+.comment-input::placeholder {
+    color: #6b778c;
+}
+
+/* Scroll suave para lista de comentários */
+.comments-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* Customização da scrollbar */
+.comments-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: #f4f5f7;
+    border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: #c1c7d0;
+    border-radius: 4px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: #a5adba;
+}
+
+/* Tooltip melhorado para tempo */
+.comment-time {
+    cursor: help;
+    position: relative;
+}
+
+.comment-time:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 4px;
+}
+
+/* Loading state para comentários */
+.comments-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6b778c;
+}
+
+.comments-loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    border: 2px solid #dfe1e6;
+    border-top-color: #0079bf;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Melhor visual para o contador de comentários no cartão */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    font-weight: 500;
+}
+
+/* Destaque para comentários recém-adicionados */
+.comment-item.new {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0% {
+        background: #e4f0f6;
+    }
+    100% {
+        background: transparent;
+    }
+}              
     </style>
 
     <script src="js/services/api.service.js"></script>
@@ -2694,11 +2985,6 @@
                 `<span class="label label-${label}"></span>`
             ).join('') : '';
             
-            // Comment indicator
-            if (card.commentCount && card.commentCount > 0) {
-                badgesHTML += `<span class="badge">💬 ${card.commentCount}</span>`;
-            }
-
             // Get cover image if exists
             let coverImageHTML = '';
             if (card.coverImage) {
@@ -2744,6 +3030,11 @@
                     badgesHTML += '</div>';
                 }
                 
+                // Comment indicator
+                if (card.commentCount && card.commentCount > 0) {
+                    badgesHTML += `<span class="badge">💬 ${card.commentCount}</span>`;
+                }
+
                 badgesHTML += '</div>';
             }
             
@@ -3030,162 +3321,6 @@
             }
         }
 
-        // Comments functions
-        async function loadCardComments() {
-            try {
-                const response = await apiService.getCardComments(currentCardId);
-                if (response.success) {
-                    renderComments(response.comments);
-                }
-            } catch (error) {
-                console.error('Error loading comments:', error);
-            }
-        }
-
-        function renderComments(comments) {
-            const commentsList = document.getElementById('commentsList');
-            const board = appState.currentBoard;
-            const isAdmin = board.role === 'admin';
-            
-            if (comments.length === 0) {
-                commentsList.innerHTML = '<div class="empty-comments">Ainda não há comentários. Seja o primeiro a comentar!</div>';
-                return;
-            }
-            
-            commentsList.innerHTML = comments.map(comment => {
-                const createdDate = new Date(comment.createdAt);
-                const timeAgo = getTimeAgo(createdDate);
-                const canDelete = comment.isOwner || isAdmin;
-                const canEdit = comment.isOwner;
-                
-                return `
-                    <div class="comment-item" id="comment-${comment.id}">
-                        <div class="comment-avatar" style="background-color: ${comment.user.color}">
-                            ${comment.user.initials}
-                        </div>
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <span class="comment-author">${comment.user.name}</span>
-                                <span class="comment-time" title="${createdDate.toLocaleString('pt-BR')}">${timeAgo}</span>
-                            </div>
-                            <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.comment)}</div>
-                            ${canEdit ? `
-                                <div class="comment-edit-form" id="editForm-${comment.id}">
-                                    <textarea class="comment-edit-input" id="editInput-${comment.id}">${escapeHtml(comment.comment)}</textarea>
-                                    <div class="comment-edit-buttons">
-                                        <button class="btn btn-primary" onclick="saveCommentEdit(${comment.id})">Salvar</button>
-                                        <button class="btn btn-cancel" onclick="cancelCommentEdit(${comment.id})">Cancelar</button>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            <div class="comment-actions">
-                                ${canEdit ? `<span class="comment-action" onclick="editComment(${comment.id})">Editar</span>` : ''}
-                                ${canDelete ? `<span class="comment-action delete" onclick="deleteComment(${comment.id})">Excluir</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function addComment() {
-            const commentInput = document.getElementById('commentInput');
-            const comment = commentInput.value.trim();
-            
-            if (!comment) {
-                notify.error('Por favor, escreva um comentário');
-                return;
-            }
-            
-            try {
-                const response = await apiService.addCardComment(currentCardId, comment);
-                if (response.success) {
-                    commentInput.value = '';
-                    commentInput.style.height = 'auto';
-                    document.getElementById('commentButton').style.display = 'none';
-                    await loadCardComments();
-                    await loadCurrentBoard(); // Update card activity indicators if needed
-                }
-            } catch (error) {
-                console.error('Error adding comment:', error);
-                notify.error('Erro ao adicionar comentário');
-            }
-        }
-
-        function editComment(commentId) {
-            const textDiv = document.getElementById(`commentText-${commentId}`);
-            const editForm = document.getElementById(`editForm-${commentId}`);
-            
-            textDiv.style.display = 'none';
-            editForm.classList.add('active');
-            
-            const editInput = document.getElementById(`editInput-${commentId}`);
-            editInput.focus();
-            editInput.setSelectionRange(editInput.value.length, editInput.value.length);
-        }
-
-        function cancelCommentEdit(commentId) {
-            const textDiv = document.getElementById(`commentText-${commentId}`);
-            const editForm = document.getElementById(`editForm-${commentId}`);
-            
-            textDiv.style.display = 'block';
-            editForm.classList.remove('active');
-        }
-
-        async function saveCommentEdit(commentId) {
-            const editInput = document.getElementById(`editInput-${commentId}`);
-            const newComment = editInput.value.trim();
-            
-            if (!newComment) {
-                notify.error('O comentário não pode estar vazio');
-                return;
-            }
-            
-            try {
-                const response = await apiService.updateCardComment(commentId, newComment);
-                if (response.success) {
-                    await loadCardComments();
-                }
-            } catch (error) {
-                console.error('Error updating comment:', error);
-                notify.error('Erro ao atualizar comentário');
-            }
-        }
-
-        async function deleteComment(commentId) {
-            if (!confirm('Tem certeza que deseja excluir este comentário?')) {
-                return;
-            }
-            
-            try {
-                const response = await apiService.deleteCardComment(commentId);
-                if (response.success) {
-                    await loadCardComments();
-                }
-            } catch (error) {
-                console.error('Error deleting comment:', error);
-                notify.error('Erro ao excluir comentário');
-            }
-        }
-
-        // Utility functions
-        function getTimeAgo(date) {
-            const now = new Date();
-            const diffInSeconds = Math.floor((now - date) / 1000);
-            
-            if (diffInSeconds < 60) return 'agora mesmo';
-            if (diffInSeconds < 3600) return `há ${Math.floor(diffInSeconds / 60)} minuto${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
-            if (diffInSeconds < 86400) return `há ${Math.floor(diffInSeconds / 3600)} hora${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
-            if (diffInSeconds < 604800) return `há ${Math.floor(diffInSeconds / 86400)} dia${Math.floor(diffInSeconds / 86400) > 1 ? 's' : ''}`;
-            
-            return date.toLocaleDateString('pt-BR');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
         // Card modal
         let currentCardId = null;
 
@@ -3264,6 +3399,164 @@
             }
         }
 
+
+                    // Comments functions
+                    async function loadCardComments() {
+                        try {
+                            const response = await apiService.getCardComments(currentCardId);
+                            if (response.success) {
+                                renderComments(response.comments);
+                            }
+                        } catch (error) {
+                            console.error('Error loading comments:', error);
+                        }
+                    }
+
+                    function renderComments(comments) {
+                        const commentsList = document.getElementById('commentsList');
+                        const board = appState.currentBoard;
+                        const isAdmin = board.role === 'admin';
+                        
+                        if (comments.length === 0) {
+                            commentsList.innerHTML = '<div class="empty-comments">Ainda não há comentários. Seja o primeiro a comentar!</div>';
+                            return;
+                        }
+                        
+                        commentsList.innerHTML = comments.map(comment => {
+                            const createdDate = new Date(comment.createdAt);
+                            const timeAgo = getTimeAgo(createdDate);
+                            const canDelete = comment.isOwner || isAdmin;
+                            const canEdit = comment.isOwner;
+                            
+                            return `
+                                <div class="comment-item" id="comment-${comment.id}">
+                                    <div class="comment-avatar" style="background-color: ${comment.user.color}">
+                                        ${comment.user.initials}
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <span class="comment-author">${comment.user.name}</span>
+                                            <span class="comment-time" title="${createdDate.toLocaleString('pt-BR')}">${timeAgo}</span>
+                                        </div>
+                                        <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.comment)}</div>
+                                        ${canEdit ? `
+                                            <div class="comment-edit-form" id="editForm-${comment.id}">
+                                                <textarea class="comment-edit-input" id="editInput-${comment.id}">${escapeHtml(comment.comment)}</textarea>
+                                                <div class="comment-edit-buttons">
+                                                    <button class="btn btn-primary" onclick="saveCommentEdit(${comment.id})">Salvar</button>
+                                                    <button class="btn btn-cancel" onclick="cancelCommentEdit(${comment.id})">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        <div class="comment-actions">
+                                            ${canEdit ? `<span class="comment-action" onclick="editComment(${comment.id})">Editar</span>` : ''}
+                                            ${canDelete ? `<span class="comment-action delete" onclick="deleteComment(${comment.id})">Excluir</span>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    async function addComment() {
+                        const commentInput = document.getElementById('commentInput');
+                        const comment = commentInput.value.trim();
+                        
+                        if (!comment) {
+                            notify.error('Por favor, escreva um comentário');
+                            return;
+                        }
+                        
+                        try {
+                            const response = await apiService.addCardComment(currentCardId, comment);
+                            if (response.success) {
+                                commentInput.value = '';
+                                commentInput.style.height = 'auto';
+                                document.getElementById('commentButton').style.display = 'none';
+                                await loadCardComments();
+                                await loadCurrentBoard(); // Update card activity indicators if needed
+                            }
+                        } catch (error) {
+                            console.error('Error adding comment:', error);
+                            notify.error('Erro ao adicionar comentário');
+                        }
+                    } 
+                          
+                    function editComment(commentId) {
+                        const textDiv = document.getElementById(`commentText-${commentId}`);
+                        const editForm = document.getElementById(`editForm-${commentId}`);
+                        
+                        textDiv.style.display = 'none';
+                        editForm.classList.add('active');
+                        
+                        const editInput = document.getElementById(`editInput-${commentId}`);
+                        editInput.focus();
+                        editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+                    }
+
+                    function cancelCommentEdit(commentId) {
+                        const textDiv = document.getElementById(`commentText-${commentId}`);
+                        const editForm = document.getElementById(`editForm-${commentId}`);
+                        
+                        textDiv.style.display = 'block';
+                        editForm.classList.remove('active');
+                    }
+
+                    async function saveCommentEdit(commentId) {
+                        const editInput = document.getElementById(`editInput-${commentId}`);
+                        const newComment = editInput.value.trim();
+                        
+                        if (!newComment) {
+                            notify.error('O comentário não pode estar vazio');
+                            return;
+                        }
+                        
+                        try {
+                            const response = await apiService.updateCardComment(commentId, newComment);
+                            if (response.success) {
+                                await loadCardComments();
+                            }
+                        } catch (error) {
+                            console.error('Error updating comment:', error);
+                            notify.error('Erro ao atualizar comentário');
+                        }
+                    }
+
+                    async function deleteComment(commentId) {
+                        if (!confirm('Tem certeza que deseja excluir este comentário?')) {
+                            return;
+                        }
+                        
+                        try {
+                            const response = await apiService.deleteCardComment(commentId);
+                            if (response.success) {
+                                await loadCardComments();
+                            }
+                        } catch (error) {
+                            console.error('Error deleting comment:', error);
+                            notify.error('Erro ao excluir comentário');
+                        }
+                    }
+
+                    // Utility functions
+                    function getTimeAgo(date) {
+                        const now = new Date();
+                        const diffInSeconds = Math.floor((now - date) / 1000);
+                        
+                        if (diffInSeconds < 60) return 'agora mesmo';
+                        if (diffInSeconds < 3600) return `há ${Math.floor(diffInSeconds / 60)} minuto${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
+                        if (diffInSeconds < 86400) return `há ${Math.floor(diffInSeconds / 3600)} hora${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
+                        if (diffInSeconds < 604800) return `há ${Math.floor(diffInSeconds / 86400)} dia${Math.floor(diffInSeconds / 86400) > 1 ? 's' : ''}`;
+                        
+                        return date.toLocaleDateString('pt-BR');
+                    }
+
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }  
+                                                                              
         async function closeModal() {
             const board = appState.currentBoard;
             const canEdit = board.role === 'admin' || board.role === 'editor';
@@ -3857,6 +4150,7 @@
             }
         }
 
+
         // Color selection
         document.querySelectorAll('.color-option').forEach(option => {
             option.addEventListener('click', function() {
@@ -3926,30 +4220,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
             
-
-            // Setup comment input behavior
-            const commentInput = document.getElementById('commentInput');
-            const commentButton = document.getElementById('commentButton');
-
-            commentInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
-                
-                if (this.value.trim()) {
-                    commentButton.style.display = 'block';
-                } else {
-                    commentButton.style.display = 'none';
-                }
-            });
-
-            commentInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (this.value.trim()) {
-                        addComment();
-                    }
-                }
-            });            
             // Setup drag and drop for images
             const imageUploadArea = document.getElementById('imageUploadArea');
             
@@ -3980,6 +4250,31 @@
                     }
                 }
             });
+
+            // Setup comment input behavior
+            const commentInput = document.getElementById('commentInput');
+            const commentButton = document.getElementById('commentButton');
+
+            commentInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+                
+                if (this.value.trim()) {
+                    commentButton.style.display = 'block';
+                } else {
+                    commentButton.style.display = 'none';
+                }
+            });
+
+            commentInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (this.value.trim()) {
+                        addComment();
+                    }
+                }
+            });  
+            
         });
     </script>
 </body>

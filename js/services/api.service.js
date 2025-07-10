@@ -571,62 +571,69 @@ class ApiService {
         } catch (error) {
             throw error;
         }
-    }    
+    } 
 
-    async getCardComments(cardId) {
-        try {
-            const response = await fetch(`${this.baseURL}/card-comments.php?cardId=${cardId}`, {
-                method: 'GET',
-                headers: this.setAuthHeader()
-            });
+// ===========================
+// Card Comments Methods
+// ===========================
 
-            return await this.handleResponse(response);
-        } catch (error) {
-            throw error;
-        }
+async getCardComments(cardId) {
+    try {
+        const response = await fetch(`${this.baseURL}/card-comments.php?cardId=${cardId}`, {
+            method: 'GET',
+            headers: this.setAuthHeader()
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
     }
-
-    async addCardComment(cardId, comment) {
-        try {
-            const response = await fetch(`${this.baseURL}/card-comments.php`, {
-                method: 'POST',
-                headers: this.setAuthHeader(),
-                body: JSON.stringify({ cardId, comment })
-            });
-
-            return await this.handleResponse(response);
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    async updateCardComment(commentId, comment) {
-        try {
-            const response = await fetch(`${this.baseURL}/card-comments.php?id=${commentId}`, {
-                method: 'PUT',
-                headers: this.setAuthHeader(),
-                body: JSON.stringify({ comment })
-            });
-
-            return await this.handleResponse(response);
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    async deleteCardComment(commentId) {
-        try {
-            const response = await fetch(`${this.baseURL}/card-comments.php?id=${commentId}`, {
-                method: 'DELETE',
-                headers: this.setAuthHeader()
-            });
-
-            return await this.handleResponse(response);
-        } catch (error) {
-            throw error;
-        }
-    }    
 }
+
+async addCardComment(cardId, comment) {
+    try {
+        const response = await fetch(`${this.baseURL}/card-comments.php`, {
+            method: 'POST',
+            headers: this.setAuthHeader(),
+            body: JSON.stringify({ cardId, comment })
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async updateCardComment(commentId, comment) {
+    try {
+        const response = await fetch(`${this.baseURL}/card-comments.php?id=${commentId}`, {
+            method: 'PUT',
+            headers: this.setAuthHeader(),
+            body: JSON.stringify({ comment })
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async deleteCardComment(commentId) {
+    try {
+        const response = await fetch(`${this.baseURL}/card-comments.php?id=${commentId}`, {
+            method: 'DELETE',
+            headers: this.setAuthHeader()
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+       
+}
+
+
 
 // Create singleton instance
 const apiService = new ApiService();
