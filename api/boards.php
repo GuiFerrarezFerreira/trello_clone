@@ -78,20 +78,6 @@ switch($method) {
                     "color" => $tag['color']
                 );
             }
-
-            // E então no retorno final, adicione as tags ao objeto board:
-            echo json_encode(array(
-                "success" => true,
-                "board" => array(
-                    "id" => $board['id'],
-                    "title" => $board['title'],
-                    "color" => $board['color'],
-                    "role" => $board['role'],
-                    "members" => $members,
-                    "tags" => $boardTags,  // NOVA LINHA
-                    "lists" => $lists
-                )
-            ));
             
             // Get lists with cards
             $query = "SELECT * FROM lists WHERE board_id = ? ORDER BY position";
@@ -172,6 +158,7 @@ switch($method) {
                     "color" => $board['color'],
                     "role" => $board['role'],
                     "members" => $members,
+                    "tags" => $boardTags,  // NOVA LINHA                    
                     "lists" => $lists
                 )
             ));
