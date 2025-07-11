@@ -630,6 +630,64 @@ async deleteCardComment(commentId) {
         throw error;
     }
 }
+
+// ===========================
+// Board Tags Methods
+// ===========================
+
+async getBoardTags(boardId) {
+    try {
+        const response = await fetch(`${this.baseURL}/board-tags.php?boardId=${boardId}`, {
+            method: 'GET',
+            headers: this.setAuthHeader()
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async createBoardTag(boardId, name, color) {
+    try {
+        const response = await fetch(`${this.baseURL}/board-tags.php`, {
+            method: 'POST',
+            headers: this.setAuthHeader(),
+            body: JSON.stringify({ boardId, name, color })
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async updateBoardTag(tagId, color) {
+    try {
+        const response = await fetch(`${this.baseURL}/board-tags.php?id=${tagId}`, {
+            method: 'PUT',
+            headers: this.setAuthHeader(),
+            body: JSON.stringify({ color })
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async deleteBoardTag(tagId) {
+    try {
+        const response = await fetch(`${this.baseURL}/board-tags.php?id=${tagId}`, {
+            method: 'DELETE',
+            headers: this.setAuthHeader()
+        });
+
+        return await this.handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
+}
        
 }
 

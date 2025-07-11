@@ -1437,6 +1437,209 @@
 .date-input::-webkit-datetime-edit-minute-field {
     padding: 0;
 }        
+
+
+/* Tags coloridas */
+.tag {
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Tag Manager */
+.tags-manager {
+    background: white;
+    border-radius: 3px;
+    padding: 16px;
+    margin-top: 16px;
+    border: 1px solid #dfe1e6;
+}
+
+.tags-manager-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #172b4d;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add-tag-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #0079bf;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+    background: #026aa7;
+}
+
+.tags-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tag-config-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.tag-config-item:hover {
+    background: #f4f5f7;
+}
+
+.tag-preview {
+    flex: 1;
+    padding: 4px 12px;
+    border-radius: 3px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.tag-color-picker {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    border: 2px solid #dfe1e6;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.tag-color-picker input[type="color"] {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.tag-delete-btn {
+    background: transparent;
+    border: none;
+    color: #6b778c;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.tag-delete-btn:hover {
+    background: #eb5a46;
+    color: white;
+}
+
+/* Add tag form */
+.add-tag-form {
+    display: none;
+    background: #f4f5f7;
+    padding: 12px;
+    border-radius: 3px;
+    margin-top: 12px;
+}
+
+.add-tag-form.active {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.form-field {
+    flex: 1;
+}
+
+.form-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5e6c84;
+    margin-bottom: 4px;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.tag-suggestion {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px;
+    background: #e4e6ea;
+    color: #172b4d;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tag-suggestion:hover {
+    background: #d1d3d8;
+}
+
+/* Tag autocomplete dropdown */
+.tag-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 100;
+}
+
+.tag-autocomplete.active {
+    display: block;
+}
+
+.tag-autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-autocomplete-item:hover {
+    background: #f4f5f7;
+}
+
+.tag-autocomplete-preview {
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+}
     </style>
 </head>
 <body>
@@ -2702,6 +2905,23 @@
             await loadCurrentBoard();
         }
 
+        // Estado para tags do board
+        let boardTags = [];
+
+        // Carregar tags do board ao carregar o board
+        async function loadBoardTags() {
+            if (!appState.currentBoardId) return;
+            
+            try {
+                const response = await apiService.getBoardTags(appState.currentBoardId);
+                if (response.success) {
+                    boardTags = response.tags;
+                }
+            } catch (error) {
+                console.error('Error loading board tags:', error);
+            }
+        }
+
         // Load current board
         async function loadCurrentBoard() {
             if (!appState.currentBoardId) {
@@ -2715,6 +2935,7 @@
                 const response = await apiService.getBoard(appState.currentBoardId);
                 if (response.success) {
                     appState.currentBoard = response.board;
+                    boardTags = response.board.tags || []; // Carregar tags do board
                     renderCurrentBoard();
                 }
             } catch (error) {
@@ -3005,9 +3226,9 @@
                     
                     let dueDateClass = '';
                     if (diffDays < 0) dueDateClass = 'overdue';
+                    else if (diffDays === 0) dueDateClass = 'due-today';
                     else if (diffDays <= 1) dueDateClass = 'due-soon';
                     
-                    // Formatação da data em português
                     const options = { 
                         day: 'numeric', 
                         month: 'short',
@@ -3017,7 +3238,7 @@
                     badgesHTML += `<span class="badge badge-due-date ${dueDateClass}">📅 ${dateStr}</span>`;
                 }
 
-                // Image indicator (only if there are multiple images or no cover)
+                // Image indicator
                 if (card.hasImages && (!card.coverImage || card.imageCount > 1)) {
                     badgesHTML += `<span class="badge">📷 ${card.imageCount || ''}</span>`;
                 }                
@@ -3038,11 +3259,15 @@
                 badgesHTML += '</div>';
             }
             
+            // Tags com cores
             let tagsHTML = '';
             if (card.tags && card.tags.length > 0) {
                 tagsHTML = '<div class="card-tags">';
                 card.tags.forEach(tag => {
-                    tagsHTML += `<span class="tag">#${tag}</span>`;
+                    const tagConfig = boardTags.find(t => t.name === tag);
+                    const color = tagConfig ? tagConfig.color : '#e4e6ea';
+                    const textColor = getContrastColor(color);
+                    tagsHTML += `<span class="tag" style="background-color: ${color}; color: ${textColor};">#${tag}</span>`;
                 });
                 tagsHTML += '</div>';
             }
@@ -3065,6 +3290,20 @@
                     </div>
                 </div>
             `;
+        }
+
+        // Função para calcular cor de contraste
+        function getContrastColor(hexColor) {
+            // Converter hex para RGB
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            
+            // Calcular luminosidade
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            
+            // Retornar preto ou branco baseado na luminosidade
+            return luminance > 0.5 ? '#172b4d' : '#ffffff';
         }
 
         // Render empty state
@@ -3327,7 +3566,7 @@
         async function openCardModal(cardId) {
             currentCardId = cardId;
             const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';;
+            const canEdit = board.role === 'admin' || board.role === 'editor';
             
             try {
                 const response = await apiService.getCard(cardId);
@@ -3375,8 +3614,26 @@
                     
                     document.getElementById('tagInput').style.display = canEdit ? 'block' : 'none';
                     
+                    // Adicionar após o tag input no modal
+                    const commonTags = ['urgente', 'bug', 'feature', 'melhoria', 'documentação', 'teste'];
+                    const suggestionsHTML = canEdit ? `
+                        <div style="margin-top: 8px;">
+                            <small style="color: #6b778c; font-size: 12px;">Sugestões:</small>
+                            <div style="margin-top: 4px;">
+                                ${commonTags.map(tag => `
+                                    <span class="tag-suggestion" onclick="addTag('${tag}')">${tag}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : '';
+                                        
                     renderMembersSelector(card);
                     renderTags(card);
+
+                    // Configurar autocomplete de tags
+                    if (canEdit) {
+                        setTimeout(() => setupTagAutocomplete(), 100);
+                    }
 
                     document.getElementById('imageUploadArea').style.display = canEdit ? 'block' : 'none';
 
@@ -3390,6 +3647,8 @@
 
                     // Load comments
                     await loadCardComments();
+
+
 
                     document.getElementById('cardModal').classList.add('active');
                 }
@@ -3591,6 +3850,7 @@
         function renderMembersModal() {
             const board = appState.currentBoard;
             const modalBody = document.getElementById('membersModalBody');
+            const isAdmin = board.role === 'admin';
             
             const membersHTML = board.members.map(member => {
                 const isCurrentUser = member.userId === appState.currentUserId;
@@ -3608,12 +3868,12 @@
                         </div>
                         <div>
                             <select class="role-selector" onchange="updateMemberRole('${member.userId}', this.value)" 
-                                    ${isCurrentUser ? 'disabled' : ''}>
+                                    ${isCurrentUser || !isAdmin ? 'disabled' : ''}>
                                 <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
                                 <option value="editor" ${member.role === 'editor' ? 'selected' : ''}>Editor</option>
                                 <option value="reader" ${member.role === 'reader' ? 'selected' : ''}>Leitor</option>
                             </select>
-                            ${!isCurrentUser ? `
+                            ${!isCurrentUser && isAdmin ? `
                                 <button class="remove-member-btn" onclick="removeBoardMember('${member.userId}')">
                                     Remover
                                 </button>
@@ -3622,6 +3882,34 @@
                     </div>
                 `;
             }).join('');
+            
+            // Adicionar seção de gerenciamento de tags se for editor ou admin
+            const canEditTags = board.role === 'admin' || board.role === 'editor';
+            const tagsManagerHTML = canEditTags ? `
+                <div class="tags-manager">
+                    <div class="tags-manager-title">
+                        <span>🏷️ Gerenciar Tags do Quadro</span>
+                        <button class="add-tag-btn" onclick="showAddTagForm()">+ Nova Tag</button>
+                    </div>
+                    <div class="add-tag-form" id="addTagForm">
+                        <div class="form-field">
+                            <label>Nome da Tag</label>
+                            <input type="text" id="newTagName" placeholder="Digite o nome da tag">
+                        </div>
+                        <div class="form-field" style="width: 100px;">
+                            <label>Cor</label>
+                            <div class="tag-color-picker">
+                                <input type="color" id="newTagColor" value="#e4e6ea">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="createBoardTag()">Criar</button>
+                        <button class="btn btn-cancel" onclick="hideAddTagForm()">Cancelar</button>
+                    </div>
+                    <div class="tags-list" id="boardTagsList">
+                        ${renderBoardTagsList()}
+                    </div>
+                </div>
+            ` : '';
             
             modalBody.innerHTML = `
                 <div>
@@ -3643,7 +3931,166 @@
                         </select>
                     </div>
                 </div>
+                ${tagsManagerHTML}
             `;
+        }
+
+        // Renderizar lista de tags do board
+        function renderBoardTagsList() {
+            if (!boardTags || boardTags.length === 0) {
+                return '<p style="color: #6b778c; font-size: 14px; text-align: center; padding: 20px;">Nenhuma tag configurada ainda</p>';
+            }
+            
+            return boardTags.map(tag => {
+                const textColor = getContrastColor(tag.color);
+                return `
+                    <div class="tag-config-item">
+                        <div class="tag-preview" 
+                             style="background-color: ${tag.color}; color: ${textColor};"
+                             onclick="editTagColor(${tag.id}, '${tag.color}')">
+                            <span>#${tag.name}</span>
+                            <span style="font-size: 11px; opacity: 0.8;">Clique para editar cor</span>
+                        </div>
+                        <div class="tag-color-picker" style="background-color: ${tag.color};">
+                            <input type="color" 
+                                   value="${tag.color}" 
+                                   onchange="updateTagColor(${tag.id}, this.value)"
+                                   title="Alterar cor">
+                        </div>
+                        <button class="tag-delete-btn" 
+                                onclick="confirmDeleteTag(${tag.id}, '${tag.name}')"
+                                title="Excluir tag">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Funções de gerenciamento de tags
+        function showAddTagForm() {
+            document.getElementById('addTagForm').classList.add('active');
+            document.getElementById('newTagName').focus();
+        }
+
+        function hideAddTagForm() {
+            document.getElementById('addTagForm').classList.remove('active');
+            document.getElementById('newTagName').value = '';
+            document.getElementById('newTagColor').value = '#e4e6ea';
+        }
+
+        async function createBoardTag() {
+            const name = document.getElementById('newTagName').value.trim();
+            const color = document.getElementById('newTagColor').value;
+            
+            if (!name) {
+                notify.error('Por favor, digite um nome para a tag');
+                return;
+            }
+            
+            try {
+                const response = await apiService.createBoardTag(appState.currentBoardId, name, color);
+                if (response.success) {
+                    notify.success('Tag criada com sucesso!');
+                    await loadBoardTags();
+                    renderMembersModal();
+                }
+            } catch (error) {
+                console.error('Error creating tag:', error);
+                notify.error('Erro ao criar tag');
+            }
+        }
+
+        async function updateTagColor(tagId, color) {
+            try {
+                const response = await apiService.updateBoardTag(tagId, color);
+                if (response.success) {
+                    await loadBoardTags();
+                    await loadCurrentBoard(); // Recarregar board para atualizar cores
+                    document.getElementById('boardTagsList').innerHTML = renderBoardTagsList();
+                }
+            } catch (error) {
+                console.error('Error updating tag color:', error);
+                notify.error('Erro ao atualizar cor da tag');
+            }
+        }
+
+        function confirmDeleteTag(tagId, tagName) {
+            showConfirmDialog(
+                'Excluir tag',
+                `Tem certeza que deseja excluir a tag "${tagName}"? A tag será removida da configuração, mas permanecerá nos cartões.`,
+                () => deleteTag(tagId)
+            );
+        }
+
+        async function deleteTag(tagId) {
+            try {
+                const response = await apiService.deleteBoardTag(tagId);
+                if (response.success) {
+                    notify.success('Tag excluída da configuração!');
+                    hideConfirmDialog();
+                    await loadBoardTags();
+                    renderMembersModal();
+                }
+            } catch (error) {
+                console.error('Error deleting tag:', error);
+                notify.error('Erro ao excluir tag');
+            }
+        }
+
+        // Adicionar autocomplete de tags ao input
+        function setupTagAutocomplete() {
+            const tagInput = document.getElementById('tagInput');
+            const tagsContainer = document.querySelector('.tags-input-container');
+            
+            // Criar dropdown de autocomplete
+            const autocomplete = document.createElement('div');
+            autocomplete.className = 'tag-autocomplete';
+            autocomplete.id = 'tagAutocomplete';
+            tagsContainer.style.position = 'relative';
+            tagsContainer.appendChild(autocomplete);
+            
+            tagInput.addEventListener('input', function() {
+                const value = this.value.trim().toLowerCase();
+                
+                if (value.length > 0) {
+                    const suggestions = boardTags.filter(tag => 
+                        tag.name.toLowerCase().includes(value)
+                    );
+                    
+                    if (suggestions.length > 0) {
+                        autocomplete.innerHTML = suggestions.map(tag => {
+                            const textColor = getContrastColor(tag.color);
+                            return `
+                                <div class="tag-autocomplete-item" onclick="selectTagSuggestion('${tag.name}')">
+                                    <span class="tag-autocomplete-preview" 
+                                          style="background-color: ${tag.color}; color: ${textColor};">
+                                        #${tag.name}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('');
+                        autocomplete.classList.add('active');
+                    } else {
+                        autocomplete.classList.remove('active');
+                    }
+                } else {
+                    autocomplete.classList.remove('active');
+                }
+            });
+            
+            // Fechar autocomplete ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.tags-input-container')) {
+                    autocomplete.classList.remove('active');
+                }
+            });
+        }
+
+        async function selectTagSuggestion(tagName) {
+            document.getElementById('tagInput').value = '';
+            document.getElementById('tagAutocomplete').classList.remove('active');
+            await addTag(tagName);
         }
 
         // Drag and drop
@@ -3842,12 +4289,18 @@
             const canEdit = board.role === 'admin' || board.role === 'editor';
             
             if (card.tags && card.tags.length > 0) {
-                tagsList.innerHTML = card.tags.map(tag => `
-                    <div class="tag-item">
-                        ${tag}
-                        ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')">×</span>` : ''}
-                    </div>
-                `).join('');
+                tagsList.innerHTML = card.tags.map(tag => {
+                    const tagConfig = boardTags.find(t => t.name === tag);
+                    const color = tagConfig ? tagConfig.color : '#e4e6ea';
+                    const textColor = getContrastColor(color);
+                    
+                    return `
+                        <div class="tag-item" style="background-color: ${color}; color: ${textColor};">
+                            ${tag}
+                            ${canEdit ? `<span class="remove" onclick="removeTag('${tag}')" style="color: ${textColor}">×</span>` : ''}
+                        </div>
+                    `;
+                }).join('');
             } else {
                 tagsList.innerHTML = '';
             }

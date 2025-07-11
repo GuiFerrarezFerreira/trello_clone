@@ -63,6 +63,35 @@ switch($method) {
                     "role" => $row['role']
                 );
             }
+
+            // Get board tags configuration
+            $tags_query = "SELECT * FROM board_tags WHERE board_id = ? ORDER BY name";
+            $tags_stmt = $db->prepare($tags_query);
+            $tags_stmt->bindParam(1, $board_id);
+            $tags_stmt->execute();
+
+            $boardTags = array();
+            while ($tag = $tags_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $boardTags[] = array(
+                    "id" => $tag['id'],
+                    "name" => $tag['name'],
+                    "color" => $tag['color']
+                );
+            }
+
+            // E então no retorno final, adicione as tags ao objeto board:
+            echo json_encode(array(
+                "success" => true,
+                "board" => array(
+                    "id" => $board['id'],
+                    "title" => $board['title'],
+                    "color" => $board['color'],
+                    "role" => $board['role'],
+                    "members" => $members,
+                    "tags" => $boardTags,  // NOVA LINHA
+                    "lists" => $lists
+                )
+            ));
             
             // Get lists with cards
             $query = "SELECT * FROM lists WHERE board_id = ? ORDER BY position";
