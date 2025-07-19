@@ -2721,6 +2721,58 @@
 }
 
 /* Loading state para comentários */
+
+/* Link styles */
+.card a,
+.description-input a,
+.comment-text a,
+.card-detail-title a,
+.description-display a,
+.table-card-title a {
+    color: #0079bf;
+    text-decoration: underline;
+    word-break: break-word;
+}
+
+.card a:hover,
+.description-input a:hover,
+.comment-text a:hover,
+.card-detail-title a:hover,
+.description-display a:hover,
+.table-card-title a:hover {
+    color: #026aa7;
+    text-decoration: underline;
+}
+
+.card-title-text {
+    word-break: break-word;
+}
+
+/* Ensure links in cards don't interfere with drag */
+.card a {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* Styles for linkified content */
+.card-detail-title[contenteditable="false"] {
+    cursor: default;
+}
+
+.description-display {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #172b4d;
+}
+
+/* Ensure links don't break card layout */
+.card-title-text a {
+    max-width: 100%;
+    display: inline;
+    overflow-wrap: break-word;
+}
+
 .comments-loading {
     text-align: center;
     padding: 20px;
@@ -3087,8 +3139,8 @@
                                 ${allCards.map(card => `
                                     <tr>
                                         <td>
-                                            <div class="table-card-title" onclick="openCardModal('${card.id}')">
-                                                ${card.title}
+                                            <div class="table-card-title" onclick="handleCardClick(event, '${card.id}')">
+                                                ${linkifyForDisplay(card.title)}
                                             </div>
                                         </td>
                                         <td>${card.listTitle}</td>
@@ -3275,7 +3327,7 @@
             return `
                 <div class="card ${card.coverImage ? 'has-cover' : ''}" draggable="${canEdit ? 'true' : 'false'}" data-card-id="${card.id}" 
                      ${canEdit ? `ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)"` : ''}
-                     onclick="openCardModal('${card.id}')">
+                     onclick="handleCardClick(event, '${card.id}')">
                     ${canEdit ? `
                         <div class="card-delete" onclick="deleteCard(event, '${card.id}')" title="Excluir cartão">
                             ×
@@ -3284,7 +3336,7 @@
                     ${coverImageHTML}
                     <div class="card-content">
                         ${labelsHTML ? `<div class="card-labels">${labelsHTML}</div>` : ''}
-                        ${card.title}
+                        <div class="card-title-text">${linkifyForDisplay(card.title)}</div>
                         ${tagsHTML}
                         ${badgesHTML}
                     </div>
@@ -3563,6 +3615,21 @@
         // Card modal
         let currentCardId = null;
 
+        // Card click handler
+        function handleCardClick(event, cardId) {
+            // Don't open modal if clicking on a link
+            if (event.target.tagName === 'A') {
+                return;
+            }
+            
+            // Don't open modal if clicking on delete button
+            if (event.target.classList.contains('card-delete')) {
+                return;
+            }
+            
+            openCardModal(cardId);
+        }
+
         async function openCardModal(cardId) {
             currentCardId = cardId;
             const board = appState.currentBoard;
@@ -3573,10 +3640,60 @@
                 if (response.success) {
                     const card = response.card;
                     
-                    document.getElementById('modalCardTitle').textContent = card.title;
-                    document.getElementById('modalCardTitle').contentEditable = canEdit;
-                    document.getElementById('cardDescription').value = card.description || '';
-                    document.getElementById('cardDescription').readOnly = !canEdit;
+                    const titleElement = document.getElementById('modalCardTitle');
+                    if (canEdit) {
+                        titleElement.textContent = card.title;
+                        titleElement.contentEditable = true;
+                        
+                        // Save on blur
+                        titleElement.onblur = async function() {
+                            const newTitle = this.textContent.trim();
+                            if (newTitle && newTitle !== card.title) {
+                                try {
+                                    await apiService.updateCard(currentCardId, { title: newTitle });
+                                    await loadCurrentBoard();
+                                } catch (error) {
+                                    console.error('Error updating title:', error);
+                                    notify.error('Erro ao atualizar título');
+                                }
+                            }
+                        };
+                        
+                        // Prevent enter key from creating new lines
+                        titleElement.onkeydown = function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                this.blur();
+                            }
+                        };
+                    } else {
+                        titleElement.innerHTML = linkifyForDisplay(card.title);
+                        titleElement.contentEditable = false;
+                        titleElement.onblur = null;
+                        titleElement.onkeydown = null;
+                    }
+
+                    const descriptionElement = document.getElementById('cardDescription');
+                    if (canEdit) {
+                        descriptionElement.value = card.description || '';
+                        descriptionElement.readOnly = false;
+                    } else {
+                        // For read-only, convert textarea to div with links
+                        const descContainer = descriptionElement.parentElement;
+                        const descDiv = document.createElement('div');
+                        descDiv.className = 'description-display';
+                        descDiv.innerHTML = linkifyForDisplay(card.description || 'Sem descrição');
+                        descDiv.style.cssText = `
+                            background: rgba(0, 0, 0, 0.04);
+                            padding: 12px;
+                            border-radius: 3px;
+                            min-height: 100px;
+                            white-space: pre-wrap;
+                            word-break: break-word;
+                        `;
+                        descriptionElement.style.display = 'none';
+                        descriptionElement.insertAdjacentElement('afterend', descDiv);
+                    }
                     
                     // Set due date
                     if (card.dueDate) {
@@ -3697,7 +3814,7 @@
                                             <span class="comment-author">${comment.user.name}</span>
                                             <span class="comment-time" title="${createdDate.toLocaleString('pt-BR')}">${timeAgo}</span>
                                         </div>
-                                        <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.comment)}</div>
+                                        <div class="comment-text" id="commentText-${comment.id}">${linkifyText(comment.comment)}</div>
                                         ${canEdit ? `
                                             <div class="comment-edit-form" id="editForm-${comment.id}">
                                                 <textarea class="comment-edit-input" id="editInput-${comment.id}">${escapeHtml(comment.comment)}</textarea>
@@ -3809,28 +3926,20 @@
                         
                         return date.toLocaleDateString('pt-BR');
                     }
-
-                    function escapeHtml(text) {
-                        const div = document.createElement('div');
-                        div.textContent = text;
-                        return div.innerHTML;
-                    }  
+  
                                                                               
         async function closeModal() {
-            const board = appState.currentBoard;
-            const canEdit = board.role === 'admin' || board.role === 'editor';
-            
-            if (currentCardId && canEdit) {
-                const title = document.getElementById('modalCardTitle').textContent;
-                const description = document.getElementById('cardDescription').value;
-                
-                try {
-                    await apiService.updateCard(currentCardId, { title, description });
-                    await loadCurrentBoard();
-                } catch (error) {
-                    console.error('Error updating card:', error);
-                }
+            // Clean up description display div if exists
+            const descDisplay = document.querySelector('.description-display');
+            if (descDisplay) {
+                descDisplay.remove();
+                document.getElementById('cardDescription').style.display = 'block';
             }
+            
+            // Clear event handlers
+            const titleElement = document.getElementById('modalCardTitle');
+            titleElement.onblur = null;
+            titleElement.onkeydown = null;
             
             document.getElementById('cardModal').classList.remove('active');
             document.getElementById('membersSelector').classList.remove('active');
@@ -4194,6 +4303,52 @@
         function logout() {
             apiService.logout();
         }
+
+        // URL Detection and Linkify
+        function linkifyText(text) {
+            if (!text) return '';
+            
+            // Escape HTML first to prevent XSS
+            const escaped = escapeHtml(text);
+            
+            // Multiple regex patterns for different URL formats
+            const patterns = [
+                // URLs with protocol
+                /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim,
+                // URLs starting with www.
+                /(^|[^\/])(www\.[\S]+(\b|$))/gim,
+                // Email addresses
+                /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gim
+            ];
+            
+            let result = escaped;
+            
+            // Apply URL with protocol pattern
+            result = result.replace(patterns[0], '<a href="$1" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$1</a>');
+            
+            // Apply www pattern (add http://)
+            result = result.replace(patterns[1], '$1<a href="http://$2" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">$2</a>');
+            
+            // Apply email pattern
+            result = result.replace(patterns[2], '<a href="mailto:$1" onclick="event.stopPropagation()">$1</a>');
+            
+            return result;
+        }
+
+        // Linkify text but preserve structure for editable content
+        function linkifyForDisplay(text) {
+            if (!text) return '';
+            
+            // For display only (not editable), use full linkify
+            return linkifyText(text);
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }        
 
         // Card members
         function toggleMembersSelector() {
@@ -4727,6 +4882,19 @@
                     }
                 }
             });  
+
+            // Auto-save description on blur
+            document.getElementById('cardDescription').addEventListener('blur', async function() {
+                if (currentCardId && !this.readOnly) {
+                    try {
+                        await apiService.updateCard(currentCardId, { 
+                            description: this.value 
+                        });
+                    } catch (error) {
+                        console.error('Error saving description:', error);
+                    }
+                }
+            });
             
         });
     </script>
